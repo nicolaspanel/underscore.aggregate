@@ -1,0 +1,31 @@
+{
+    "name": "underscore.aggregate",
+    "version": "0.0.0",
+    "description": "Mongodb-like Aggregation Pipeline for underscorejs",
+    "authors": [
+        "Nicolas Panel"
+    ],
+    "keywords": [
+        "underscore",
+        "underscorejs",
+        "aggregate",
+        "aggregation",
+        "pipeline"
+    ],
+    "main": "./underscore.aggregate.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/nicolaspanel/underscore.aggregate.git"
+    },
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "specs"
+    ],
+    "dependencies": {
+        "underscore": "~1.6.0",
+        "moment": "~2.8.3"
+    },
+    "devDependencies": {}
+}
