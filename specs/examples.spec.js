@@ -233,12 +233,7 @@
             console.info(JSON.stringify(out, null, 4));
         });
         it('should display booleans', function(){
-            var out = _( [
-                {a: false, b: false },
-                {a: false, b: true },
-                {a: true,  b: false },
-                {a: true,  b: true }
-            ]).aggregate([
+            var out = _( [{a: true,  b: false }]).aggregate([
                 {
                     $project : {
                         a   : 1,
@@ -247,6 +242,14 @@
                         or  : { $or: ['$a', '$b'] },
                         notA: { $not: '$a' },
                         notB: { $not: '$b' }
+                    }
+                },
+                {
+                    $project : {
+                        and : { $format: ['{a} and {b} => {and}'] },
+                        or  : { $format: ['{a} or {b} => {or}'] },
+                        notA: { $format: ['not {a} => {notA}'] },
+                        notB: { $format: ['not {b} => {notB}'] }
                     }
                 }
             ]);
