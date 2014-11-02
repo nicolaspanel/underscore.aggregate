@@ -1,0 +1,32 @@
+{
+    "globals": {
+        "define": true,
+        "inject": true,
+        "it": true,
+        "describe": true,
+        "beforeEach": true,
+        "afterEach": true,
+        "expect": true,
+        "moment": true,
+        "_" : true
+    },
+    "browser": true,
+    "bitwise": true,
+    "indent": 4,           // Indent level
+    "quotmark": "single",  // Prefer single quotes
+    "curly": true,
+    "eqeqeq": true,
+    "immed": true,
+    "latedef": true,
+    "newcap": true,
+    "noarg": true,
+    "sub": true,
+    "undef": true,
+    "boss": true,
+    "eqnull": true,
+    "node": true,
+    "strict": true,
+    "expr": true,
+    "smarttabs": true,
+    "validthis": true
+}
