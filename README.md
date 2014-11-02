@@ -150,10 +150,10 @@ __Supported syntax for queries :__
 
 Syntax                  | Version | Description
 ----------------------- | ------- | ------------
-`<field>: <expression>`  |  1.0.0+ | Matches items for which `field` value equals to expression evaluation. 
-`<field>: { <operator>: <expression> }`  |  1.0.0+ | Matches items for which `field` value satisfy operator's condition.
-`<field>: { <operator>: [ <expr1>, <expr2>, ... ] }`  |  1.0.0+ | Matches items for which `field` value satisfy operator's conditions
-`<operator>: [ <query1>, <query2>, ... ]`  |  1.0.0+ | Matches items for which `operator` conditions are satisfied 
+```<field>: <expression>```  |  1.0.0+ | Matches items for which `field` value equals to expression evaluation. 
+```<field>: { <operator>: <expression> }```  |  1.0.0+ | Matches items for which `field` value satisfy operator's condition.
+```<field>: { <operator>: [ <expr1>, <expr2>, ... ] }```  |  1.0.0+ | Matches items for which `field` value satisfy operator's conditions
+```<operator>: [ <query1>, <query2>, ... ]```  |  1.0.0+ | Matches items for which `operator` conditions are satisfied 
 
 __Note:__ Default operator for queries is `$eq`. Syntax like `{ <field>: <expression> } }` are evaluated as `{ <field>: { $eq: <expression> } }`
 
@@ -162,18 +162,18 @@ __Supported Operators:__
 
 Name     | Version | Syntax                                          | Description
 -------- | ------- | ----------------------------------------------- | ---------------------------------------------
-$gt      | 1.0.0+  | `{ field: {$gt: <expression> } }`               | Matches values that are __greater than__ the value specified in the query. Supports both numbers and dates.
-$gte     | 1.0.0+  | `{ field: {$gte: <expression> } }`              | Matches values that are __greater than or equal to__  the value specified in the query. Supports both numbers and dates.
-$lt      | 1.0.0+  | `{ field: {$lt: <expression> } }`               | Matches values that are __less than__ the value specified in the query. Supports both numbers and dates.
-$lte     | 1.0.0+  | `{ field: {$lte: <expression> } }`              | Matches values that are __less than or equal to__  the value specified in the query. Supports both numbers and dates.
-$in      | 1.0.0+  | `{ field: { $in: [<expr1>, <expr2>, ... ] } }`  | Matches any of the values that __exist__ in the specified array.
-$nin     | 1.0.0+  | `{ field: { $nin: [<expr1>, <expr2>, ... ] } }` | Matches values that __do not__ exit in the specified array.
-$eq      | 1.0.0+  | `{ field: {$eq: <expression> } }`               | Matches all values that are __equal__ to the specified value.
-$ne      | 1.0.0+  | `{ field: {$ne: <expression> } }`               | Matches all values that are __not equal__ to the specified value.
-$and     | 1.0.0+  | `{ $and: [ { <query1> }, { <query2> } , ... ] }`| Matches all values that satisfy __all__ given queries.
-$or      | 1.0.0+  | `{ $or: [ { <query1> }, { <query2> } , ... ] }` | Matches all values that satisfy __any__ of the given queries.
-$nor     | 1.0.0+  | `{ $nor: [ { <query1> }, { <query2> } , ... ] }`| Matches all values that __do not__ satisfy __any__ of the given queries.
-$regex   | 1.0.0+  | `{ field: {$regex: <RegExp> } }`                | Matches all values that __match__ the given pattern.
+$gt      | 1.0.0+  | ```{ field: {$gt: <expression> } }```               | Matches values that are __greater than__ the value specified in the query. Supports both numbers and dates.
+$gte     | 1.0.0+  | ```{ field: {$gte: <expression> } }```              | Matches values that are __greater than or equal to__  the value specified in the query. Supports both numbers and dates.
+$lt      | 1.0.0+  | ```{ field: {$lt: <expression> } }```               | Matches values that are __less than__ the value specified in the query. Supports both numbers and dates.
+$lte     | 1.0.0+  | ```{ field: {$lte: <expression> } }```              | Matches values that are __less than or equal to__  the value specified in the query. Supports both numbers and dates.
+$in      | 1.0.0+  | ```{ field: { $in: [<expr1>, <expr2>, ... ] } }```  | Matches any of the values that __exist__ in the specified array.
+$nin     | 1.0.0+  | ```{ field: { $nin: [<expr1>, <expr2>, ... ] } }``` | Matches values that __do not__ exit in the specified array.
+$eq      | 1.0.0+  | ```{ field: {$eq: <expression> } }```               | Matches all values that are __equal__ to the specified value.
+$ne      | 1.0.0+  | ```{ field: {$ne: <expression> } }```               | Matches all values that are __not equal__ to the specified value.
+$and     | 1.0.0+  | ```{ $and: [ { <query1> }, { <query2> } , ... ] }```| Matches all values that satisfy __all__ given queries.
+$or      | 1.0.0+  | ```{ $or: [ { <query1> }, { <query2> } , ... ] } ```| Matches all values that satisfy __any__ of the given queries.
+$nor     | 1.0.0+  | ```{ $nor: [ { <query1> }, { <query2> } , ... ] }```| Matches all values that __do not__ satisfy __any__ of the given queries.
+$regex   | 1.0.0+  | ```{ field: {$regex: <RegExp> } }```                | Matches all values that __match__ the given pattern.
 
 
 
@@ -220,10 +220,10 @@ _(collection).aggregate([{
 __Supported syntax for specifications :
 
 
-Syntax                  | Version | Description
------------------------ | ------- | ------------
-`<field>: <1 or true>`  |  1.0.0+ | Specify the inclusion of a field.
-`<field>: <expression>` |  1.0.0+ | Add a new field or reset the value of an existing field.
+Syntax                      | Version | Description
+--------------------------- | ------- | ------------
+```<field>: <1 or true>```  | 1.0.0+  | Specify the inclusion of a field.
+```<field>: <expression>``` | 1.0.0+  | Add a new field or reset the value of an existing field.
 
 
 ### Expressions
@@ -256,13 +256,13 @@ Available operators are listed bellow.
 
 ##### Arithmetic
 
- Name     | Version | Description
- -------- | ------- | ------------
- $add     |  1.0.0+ | Adds numbers to return the sum. Accepts any number of argument expressions.
- $divide  |  1.0.0+ | Returns the result of dividing the first number by the second. Accepts two argument expressions.
- $mod     |  1.0.0+ | Returns the remainder of the first number divided by the second. Accepts two argument expressions.
- $multiply|  1.0.0+ | Multiplies numbers to return the product. Accepts any number of argument expressions.
- $subtract|  1.0.0+ | Returns the result of subtracting the second value from the first.  Accepts two argument expressions.
+ Name      | Version | Description
+ --------- | ------- | ------------
+ $add      |  1.0.0+ | Adds numbers to return the sum. Accepts any number of argument expressions.
+ $divide   |  1.0.0+ | Returns the result of dividing the first number by the second. Accepts two argument expressions.
+ $mod      |  1.0.0+ | Returns the remainder of the first number divided by the second. Accepts two argument expressions.
+ $multiply |  1.0.0+ | Multiplies numbers to return the product. Accepts any number of argument expressions.
+ $subtract |  1.0.0+ | Returns the result of subtracting the second value from the first.  Accepts two argument expressions.
 
 Example : 
 ```javascript
@@ -284,10 +284,10 @@ _([{ a: 1, b: 2 }]).aggregate([
 
  Name     | Version | Description
  -------- | ------- | ------------
- $substr  |  1.0.0+ | Returns a substring of a string, starting at a specified index position up to a specified length. Accepts three expressions as arguments: the first argument must resolve to a string, and the second and third arguments must resolve to integers.
- $format  |  1.0.0+ | Returns a string formated according to replacement arguments. Accepts any number of argument expressions.
- $toLower |  1.0.0+ | Converts a string to lowercase. Accepts a single argument expression.
- $toUpper |  1.0.0+ | Converts a string to uppercase. Accepts a single argument expression.
+ $substr  | 1.0.0+  | Returns a substring of a string, starting at a specified index position up to a specified length. Accepts three expressions as arguments: the first argument must resolve to a string, and the second and third arguments must resolve to integers.
+ $format  | 1.0.0+  | Returns a string formated according to replacement arguments. Accepts any number of argument expressions.
+ $toLower | 1.0.0+  | Converts a string to lowercase. Accepts a single argument expression.
+ $toUpper | 1.0.0+  | Converts a string to uppercase. Accepts a single argument expression.
 
 Example : 
 ```javascript
@@ -320,9 +320,9 @@ _([{ hello: 'Hello', world: 'World' }]).aggregate([
  
  Name     | Version | Description
  -------- | ------- | ------------
- $and     |  1.0.0+ | Returns true only when __all__ its expressions evaluate to true. Accepts any number of argument expressions.
- $or      |  1.0.0+ | Returns true when __any__ of its expressions evaluates to true. Accepts any number of argument expressions.
- $not     |  1.0.0+ | Returns the boolean value that is the opposite of its argument expression. Accepts a single argument expression.
+ $and     | 1.0.0+  | Returns true only when __all__ its expressions evaluate to true. Accepts any number of argument expressions.
+ $or      | 1.0.0+  | Returns true when __any__ of its expressions evaluates to true. Accepts any number of argument expressions.
+ $not     | 1.0.0+  | Returns the boolean value that is the opposite of its argument expression. Accepts a single argument expression.
 
 Example : 
 ```javascript
@@ -360,12 +360,12 @@ __Note:__ all comparison operators accept two argument expressions: `<operator>:
  
  Name     | Version | Description
  -------- | ------- | ------------
- $eq      |  1.0.0+ | Returns true if the values are equivalent.
- $ne      |  1.0.0+ | Returns true if the values are __not__ equivalent.
- $gt      |  1.0.0+ | Returns true if the first value is __greater__ than the second.
- $gte     |  1.0.0+ | Returns true if the first value is __greater or equal__ to the second.
- $lt      |  1.0.0+ | Returns true if the first value is __less__ than the second.
- $lte     |  1.0.0+ | Returns true if the first value is __less or equal__ to the second.
+ $eq      | 1.0.0+  | Returns true if the values are equivalent.
+ $ne      | 1.0.0+  | Returns true if the values are __not__ equivalent.
+ $gt      | 1.0.0+  | Returns true if the first value is __greater__ than the second.
+ $gte     | 1.0.0+  | Returns true if the first value is __greater or equal__ to the second.
+ $lt      | 1.0.0+  | Returns true if the first value is __less__ than the second.
+ $lte     | 1.0.0+  | Returns true if the first value is __less or equal__ to the second.
 
 Example : 
 ```javascript
@@ -393,9 +393,9 @@ _([{ a: 1, b: 2 }]).aggregate([
 
 ##### Array
 
- Name     | Version | Syntax | Description
- -------- | ------- | ------ | ------------
- $size    |  1.0.0+ | `<field> : { $size: <expression> }` | Returns the number of elements in the array. Accepts a single expression as argument.
+ Name     | Version | Description
+ -------- | ------- | ------------
+ $size    |  1.0.0+ | Returns the number of elements in the array. Accepts a single expression as argument.
 
 Example : 
 ```javascript
@@ -413,18 +413,18 @@ _([{ array: _.range(10) }]).aggregate([
 
  Name         | Version | Description
  ------------ | ------- | -----------
- $dayOfMonth  |  1.0.0+ | Returns the [day of the month](http://momentjs.com/docs/#/get-set/date/) for a date as a number between 1 and 31. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object.
- $dayOfWeek   |  1.0.0+ | Returns the [day of the week (Locale Aware)](http://momentjs.com/docs/#/get-set/weekday/) as a number between 0 and 6 __according to the locale__. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object.
- $dayOfYear   |  1.0.0+ | Returns the [day of the year](http://momentjs.com/docs/#/get-set/day-of-year/) as a number between 1 and 366. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object.
- $hour        |  1.0.0+ | Returns the [hour](http://momentjs.com/docs/#/get-set/hour/) as a number beetween 0 and 23. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object.
- $millisecond |  1.0.0+ | Returns the [millisecond](http://momentjs.com/docs/#/get-set/millisecond/) as a number between 0 and 999. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object.
- $minute      |  1.0.0+ | Returns the [minute](http://momentjs.com/docs/#/get-set/minute/) as a number between 0 and 59. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object.
- $month       |  1.0.0+ | Returns the [month](http://momentjs.com/docs/#/get-set/month/) as a number between 0 and 11. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. __Note__: Months are zero indexed, so January is month 0.
- $second      |  1.0.0+ | Returns the [second](http://momentjs.com/docs/#/get-set/second/) as a number between 0 and 59. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
- $week        |  1.0.0+ | Returns the [week (Locale aware)](http://momentjs.com/docs/#/get-set/week/) as a number between 1 and 53. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
- $year        |  1.0.0+ | Returns the [year](http://momentjs.com/docs/#/get-set/year/) as a number. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
- $format      |  1.0.0+ | Returns the date as a string formated according to the specified format. Accepts three expressions as arguments: the first argument must resolve to a [moment](http://momentjs.com/)  object and the second (optional) must resolve to a string. See [moment's documentation](http://momentjs.com/docs/#/displaying/) for more information.
- $parse       |  1.0.0+ | Create a [moment date]() object from the specified expression. Accepts a single argument expression resolving a number or a string.
+ $dayOfMonth  | 1.0.0+  | Returns the [day of the month](http://momentjs.com/docs/#/get-set/date/) for a date as a number between 1 and 31. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object.
+ $dayOfWeek   | 1.0.0+  | Returns the [day of the week (Locale Aware)](http://momentjs.com/docs/#/get-set/weekday/) as a number between 0 and 6 __according to the locale__. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object.
+ $dayOfYear   | 1.0.0+  | Returns the [day of the year](http://momentjs.com/docs/#/get-set/day-of-year/) as a number between 1 and 366. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object.
+ $hour        | 1.0.0+  | Returns the [hour](http://momentjs.com/docs/#/get-set/hour/) as a number beetween 0 and 23. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object.
+ $millisecond | 1.0.0+  | Returns the [millisecond](http://momentjs.com/docs/#/get-set/millisecond/) as a number between 0 and 999. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object.
+ $minute      | 1.0.0+  | Returns the [minute](http://momentjs.com/docs/#/get-set/minute/) as a number between 0 and 59. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object.
+ $month       | 1.0.0+  | Returns the [month](http://momentjs.com/docs/#/get-set/month/) as a number between 0 and 11. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. __Note__: Months are zero indexed, so January is month 0.
+ $second      | 1.0.0+  | Returns the [second](http://momentjs.com/docs/#/get-set/second/) as a number between 0 and 59. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
+ $week        | 1.0.0+  | Returns the [week (Locale aware)](http://momentjs.com/docs/#/get-set/week/) as a number between 1 and 53. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
+ $year        | 1.0.0+  | Returns the [year](http://momentjs.com/docs/#/get-set/year/) as a number. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
+ $format      | 1.0.0+  | Returns the date as a string formated according to the specified format. Accepts three expressions as arguments: the first argument must resolve to a [moment](http://momentjs.com/)  object and the second (optional) must resolve to a string. See [moment's documentation](http://momentjs.com/docs/#/displaying/) for more information.
+ $parse       | 1.0.0+  | Create a [moment date]() object from the specified expression. Accepts a single argument expression resolving a number or a string.
 
 Example : 
 ```javascript
