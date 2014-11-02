@@ -369,6 +369,12 @@
                     case '$match':
                         values = $match(values, pipe[key]);
                         break;
+                    case '$skip':
+                        values = _(values).rest(pipe['$skip']);
+                        break;
+                    case '$limit':
+                        values = _(values).first( pipe['$limit']);
+                        break;
                     default:
                         throw Error(key + ' pipes are not supported (yet?)');
                 }

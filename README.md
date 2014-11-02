@@ -73,6 +73,8 @@ __Note:__
     - [$group](#group-v100) : group collection items
     - [$match](#match-v100) : filter the collection
     - [$project](#project-v100): transform collection items
+    - [$limit](#limit-v100): Limits the number of items passed to the next stage
+    - [$skip](#skip-v100): Skips over the specified number of items
 
 
 #### $group (_v1.0.0+_)
@@ -225,6 +227,24 @@ Syntax                      | Version | Description
 ```<field>: <1 or true>```  | 1.0.0+  | Specify the inclusion of a field.
 ```<field>: <expression>``` | 1.0.0+  | Add a new field or reset the value of an existing field.
 
+
+#### $limit (_v1.0.0+_)
+Limits the number of items passed to the next stage in the pipeline.
+
+Usage: 
+```javascript
+_(collection).aggregate([{ 
+    $limit: <positive number> 
+}];
+
+#### $skip (_v1.0.0+_)
+Skips over the specified number of items that pass into the stage and passes the remaining items to the next stage in the pipeline.
+
+Usage: 
+```javascript
+_(collection).aggregate([{ 
+    $skip: <positive number> 
+}];
 
 ### Expressions
 Expressions can include :
