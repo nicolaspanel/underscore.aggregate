@@ -236,6 +236,7 @@ Usage:
 _(collection).aggregate([{ 
     $limit: <positive number> 
 }];
+```
 
 #### $skip (_v1.0.0+_)
 Skips over the specified number of items that pass into the stage and passes the remaining items to the next stage in the pipeline.
@@ -245,6 +246,7 @@ Usage:
 _(collection).aggregate([{ 
     $skip: <positive number> 
 }];
+```
 
 ### Expressions
 Expressions can include :
