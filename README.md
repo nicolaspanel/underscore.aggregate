@@ -70,9 +70,10 @@ _(collection).aggregate( [ { <stage1> }, { <stage2> }, ... ] );
 __Note:__
 - Collection items pass through the stages in sequence.
 - Possible stages are:
-    - [$group](#group) : group collection items
-    - [$match](#match) : filter the collection
-    - [$project](#project): transform collection items
+    - [$group](#group-v100) : group collection items
+    - [$match](#match-v100) : filter the collection
+    - [$project](#project-v100): transform collection items
+
 
 #### $group (_v1.0.0+_)
 
@@ -129,6 +130,7 @@ _([
 // ]  
 ```
 
+
 #### $match (_v1.0.0+_)
 
 Filters the items that match the specified condition(s) to the next pipeline stage.
@@ -144,7 +146,7 @@ _(collection).aggregate([{
 }];
 ```
 
-__Supported syntax for queries :
+__Supported syntax for queries :__
 
 Syntax                  | Version | Description
 ----------------------- | ------- | ------------
@@ -154,6 +156,7 @@ Syntax                  | Version | Description
 `<operator>: [ <query1>, <query2>, ... ]`  |  1.0.0+ | Matches items for which `operator` conditions are satisfied 
 
 __Note:__ Default operator for queries is `$eq`. Syntax like `{ <field>: <expression> } }` are evaluated as `{ <field>: { $eq: <expression> } }`
+
 
 __Supported Operators:__
 
@@ -171,6 +174,7 @@ $and     | 1.0.0+  | `{ $and: [ { <query1> }, { <query2> } , ... ] }`| Matches a
 $or      | 1.0.0+  | `{ $or: [ { <query1> }, { <query2> } , ... ] }` | Matches all values that satisfy __any__ of the given queries.
 $nor     | 1.0.0+  | `{ $nor: [ { <query1> }, { <query2> } , ... ] }`| Matches all values that __do not__ satisfy __any__ of the given queries.
 $regex   | 1.0.0+  | `{ field: {$regex: <RegExp> } }`                | Matches all values that __match__ the given pattern.
+
 
 
 __Example:__
@@ -194,10 +198,12 @@ _(logs).aggregate([{
 }]);  // => [ { level: 'error', date: {...}, content: 'throw an error during date conversion...' }]
 ```
 
+
 #### $project (_v1.0.0+_)
 
 Passes the specified fields to the next stage in the pipeline. 
 The specified fields can be existing fields from the input object or newly computed fields.
+
 
 Usage: 
 ```javascript
@@ -210,7 +216,9 @@ _(collection).aggregate([{
 }];
 ```
 
+
 __Supported syntax for specifications :
+
 
 Syntax                  | Version | Description
 ----------------------- | ------- | ------------
