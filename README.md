@@ -13,13 +13,13 @@ _([
     { level: 'error', handled: true,  date: '2000-01-01 03:00' },
     { level: 'info',  handled: false, date: '2000-01-01 04:00' }
 ]).aggregate([,
-     {
-          $project: {
-              level: 1,
-              handled: 1
-              date: { $parse: '$date' }
-          }
-     },
+    {
+        $project: {
+            level: 1,
+            handled: 1
+            date: { $parse: '$date' }
+        }
+    },
     {
         $match: {
             level: { $in: ['warn', 'error'] },
@@ -36,12 +36,7 @@ _([
             count: { $sum: 1 }
         }
     }
-]);
- 
-=> [
-  { _id: 'warn', count: 1},
-  { _id: 'error', count: 1}
-]
+]); // => [ { _id: 'warn', count: 1}, { _id: 'error', count: 1} ]
 ```
 
 ## Installation and usage
