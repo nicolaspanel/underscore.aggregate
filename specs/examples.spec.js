@@ -132,4 +132,125 @@
             });
         });
     });
+
+    describe('expressions', function(){
+        it('should display field paths', function () {
+            var homer = {
+                name: 'Homer Simpson',
+                gender: 'male' ,
+                address : { n: 742, road: 'Evergreen Terrace', city: 'Springfield' },
+                birthday: moment('1955-05-12')
+            };
+            var paths = [
+                { name : 1 },
+                { nbKids : { $literal: 3 } }
+            ];
+
+            _.each(paths, function(p){
+                var result = _([homer]).aggregate([{ $project : p  }]);
+                var mess = '' +
+                    '_([homer]).aggregate([{ $project : ' + JSON.stringify(p) + '  }]);' +
+                    ' // => ' + JSON.stringify(result);
+                console.info(mess);
+            });
+        });
+        it('should display dates', function(){
+            var out = _([{date: '1987-04-30 12:15:59.123'}]).aggregate([
+                {
+                    $project : {
+                        date: { $parse: '$date' }
+                    }
+                },
+                {
+                    $project : {
+                        dayOfMonth: { $dayOfMonth: '$date' },
+                        dayOfWeek: { $dayOfWeek: '$date' },
+                        dayOfYear: { $dayOfYear: '$date' },
+                        hour: { $hour: '$date' },
+                        millisecond: { $millisecond: '$date' },
+                        minute: { $minute: '$date' },
+                        month: { $month: '$date' },
+                        second: { $second: '$date' },
+                        week: { $week: '$date' },
+                        year: { $year: '$date' },
+                        format: { $format: ['$date', 'LT' ] }
+                    }
+                }
+            ]);
+
+            console.info(JSON.stringify(out, null, 4));
+        });
+        it('should display string', function(){
+            var out = _([{ hello: 'Hello', world: 'World' }]).aggregate([
+                {
+                    $project : {
+                        format1: { $format: ['{hello} {world}!'] },
+                        format2: { $format: ['{0} {1}!', '$hello', '$world'] },
+                    }
+                },
+                {
+                    $project : {
+                        hello: { $substr: [ '$format1', 0, 5 ] } ,
+                        world: { $substr: [ '$format2', 6, 5 ] } ,
+                        format1: { $toLower: '$format1' },
+                        format2: { $toUpper: '$format2' }
+                    }
+                }
+            ]);
+
+            console.info(JSON.stringify(out, null, 4));
+        });
+        it('should display comparisons', function(){
+            var out = _([{ a: 1, b: 2 }]).aggregate([
+                {
+                    $project : {
+                        eq: { $eq: ['$a', '$b'] },
+                        ne: { $ne: ['$a', '$b'] },
+                        gt: { $gt: ['$a', '$b'] },
+                        gte: { $gte: ['$a', '$b'] },
+                        lt: { $lt: ['$a', '$b'] },
+                        lte: { $lte: ['$a', '$b'] }
+                    }
+                }
+            ]);
+
+            console.info(JSON.stringify(out, null, 4));
+        });
+
+        it('should display Arithmetic', function(){
+            var out = _([{ a: 1, b: 2 }]).aggregate([
+                {
+                    $project : {
+                        add         : { $add: ['$a', '$b', 2] },
+                        divide      : { $divide: ['$a', '$b'] },
+                        mod         : { $mod: ['$a', '$b'] },
+                        multiply    : { $multiply: [10, '$a', '$b'] },
+                        $subtract   : { $subtract: ['$a', '$b'] }
+                    }
+                }
+            ]);
+
+            console.info(JSON.stringify(out, null, 4));
+        });
+        it('should display booleans', function(){
+            var out = _( [
+                {a: false, b: false },
+                {a: false, b: true },
+                {a: true,  b: false },
+                {a: true,  b: true }
+            ]).aggregate([
+                {
+                    $project : {
+                        a   : 1,
+                        b   : 1,
+                        and : { $and: ['$a', '$b'] },
+                        or  : { $or: ['$a', '$b'] },
+                        notA: { $not: '$a' },
+                        notB: { $not: '$b' }
+                    }
+                }
+            ]);
+            console.info(JSON.stringify(out, null, 4));
+        });
+    });
 }());

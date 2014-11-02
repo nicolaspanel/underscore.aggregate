@@ -2,6 +2,8 @@
 
 (function() {
 
+
+
     var computeExpression = function(expr, obj){
 
         if (_.isString(expr) &&
@@ -22,22 +24,133 @@
                 // function
                 return expr['$fn'](obj);
             }
-            else if (_.has(expr,'$add')){
-                // function
-                return _(expr['$add']).reduce(function(memo, subExpr){
-                    var value = computeExpression(subExpr, obj);
-                    if  (_.isNumber(memo) && _.isNumber(value)){
-                        // assume it is a date
-                        return memo + value;
-                    }else if  (_.isObject(memo) && _.isNumber(value)){
-                        // assume it is a date
-                        return memo.add(value, 'ms');
-                    }else if  (_.isObject(value) && _.isNumber(memo)){
-                        // assume value it is a date
-                        return value.add(memo, 'ms');
-                    }
-                    return memo;
+            else if (_.has(expr, '$literal')){
+                return expr['$literal'];
+            }
+            // Arithmetic Expressions
+            else if (_.has(expr, '$add')){
+                return _(expr['$add']).reduce(function(sum, e){
+                    return sum + computeExpression(e, obj);
                 }, 0);
+            }
+            else if (_.has(expr, '$divide')){
+                return computeExpression(expr['$divide'][0], obj) / computeExpression(expr['$divide'][1], obj) ;
+            }
+            else if (_.has(expr, '$mod')){
+                return computeExpression(expr['$mod'][0], obj) % computeExpression(expr['$mod'][1], obj) ;
+            }
+            else if (_.has(expr, '$multiply')){
+                return _(expr['$multiply']).reduce(function(mult, e){
+                    return mult * computeExpression(e, obj);
+                }, 1);
+            }
+            else if (_.has(expr, '$subtract')){
+                return computeExpression(expr['$subtract'][0], obj) - computeExpression(expr['$subtract'][1], obj) ;
+            }
+            // Comparison Expressions
+            else if (_.has(expr, '$eq')){
+                return computeExpression(expr['$eq'][0], obj) === computeExpression(expr['$eq'][1], obj) ;
+            }
+            else if (_.has(expr, '$ne')){
+                return computeExpression(expr['$ne'][0], obj) !== computeExpression(expr['$ne'][1], obj) ;
+            }
+            else if (_.has(expr, '$gt')){
+                return computeExpression(expr['$gt'][0], obj) > computeExpression(expr['$gt'][1], obj) ;
+            }
+            else if (_.has(expr, '$gte')){
+                return computeExpression(expr['$gte'][0], obj) >= computeExpression(expr['$gte'][1], obj) ;
+            }
+            else if (_.has(expr, '$lt')){
+                return computeExpression(expr['$lt'][0], obj) < computeExpression(expr['$lt'][1], obj) ;
+            }
+            else if (_.has(expr, '$lte')){
+                return computeExpression(expr['$lte'][0], obj) <= computeExpression(expr['$lte'][1], obj) ;
+            }
+
+            // Boolean expressions
+            else if (_.has(expr, '$and')){
+                return _(expr['$and']).every(function(e){ return computeExpression(e, obj); });
+            }
+            else if (_.has(expr, '$or')){
+                return _(expr['$or']).some(function(e){ return computeExpression(e, obj); });
+            }
+            else if (_.has(expr, '$not')){
+                return !computeExpression(expr['$not'], obj);
+            }
+
+            // String expressions
+            else if (_.has(expr, '$substr')){
+                var str = computeExpression(expr['$substr'][0], obj),
+                    start = computeExpression(expr['$substr'][1], obj),
+                    nb = computeExpression(expr['$substr'][2], obj);
+                return str.substr(start, nb);
+            }
+            else if (_.has(expr, '$toLower')){
+                return computeExpression(expr['$toLower'], obj).toLowerCase();
+            }
+            else if (_.has(expr, '$toUpper')){
+                return computeExpression(expr['$toUpper'], obj).toUpperCase();
+            }
+
+            // Array expressions
+            else if (_.has(expr, '$size')){
+                return computeExpression(expr['$size'], obj).length;
+            }
+
+            // Date expressions (assume date is a momentjs object)
+            else if (_.has(expr, '$dayOfMonth')){
+                return computeExpression(expr['$dayOfMonth'], obj).date();
+            }
+            else if (_.has(expr, '$dayOfWeek')){
+                // warning : depends on user's locale.
+                // See momentjs' documentation for more infos
+                return computeExpression(expr['$dayOfWeek'], obj).weekday();
+            }
+            else if (_.has(expr, '$dayOfYear')){
+                return computeExpression(expr['$dayOfYear'], obj).dayOfYear();
+            }
+            else if (_.has(expr, '$hour')){
+                return computeExpression(expr['$hour'], obj).hour();
+            }
+            else if (_.has(expr, '$millisecond')){
+                return computeExpression(expr['$millisecond'], obj).millisecond();
+            }
+            else if (_.has(expr, '$minute')){
+                return computeExpression(expr['$minute'], obj).minute();
+            }
+            else if (_.has(expr, '$month')){
+                return computeExpression(expr['$month'], obj).month();
+            }
+            else if (_.has(expr, '$second')){
+                return computeExpression(expr['$second'], obj).second();
+            }
+            else if (_.has(expr, '$week')){
+                // warning : depends on user's locale.
+                // See momentjs' documentation for more infos
+                return computeExpression(expr['$week'], obj).week();
+            }
+            else if (_.has(expr, '$year')){
+                return computeExpression(expr['$year'], obj).year();
+            }
+            // polymorphic
+            else if (_.has(expr, '$format')){
+                var args = _(expr['$format']).map(function(arg){
+                    return computeExpression(arg, obj);
+                });
+                if (_.isString(args[0])){
+                    if (args.length === 1){
+                        return formatStr.apply(args[0], [obj]);
+                    }
+                    return formatStr.apply(args[0], _.rest(args, 1));
+                }
+                else {
+                    // assume it is a momentjs date object
+                    return args[0].format(args[1]);
+                }
+            }
+            else if (_.has(expr, '$parse')){
+                // assume that user expect a momentjs date object
+                return moment(computeExpression(expr['$parse'], obj));
             }
             else {
                 return expr;
@@ -106,11 +219,10 @@
         }
     };
 
-
     var $group = function(values, pipeOptions){
         var groupingKey = pipeOptions._id;
-        var groups = _.groupBy(values, function(val){
-            return computeExpression(groupingKey, val);
+        var groups = _.groupBy(values, function(item){
+            return computeExpression(groupingKey, item);
         });
         return _.map(_.pairs(groups), function(pair){
             var _id = pair[0], groupItems = pair[1];
@@ -185,10 +297,23 @@
     var $project = function(values, pipeOptions){
         var pairs = _.pairs(pipeOptions);
 
-        return _(values).map(function(obj){
+        return _(values).map(function(item){
             return _.reduce(pairs, function(memo, pair){
-                var expr = pair[1], key=pair[0];
-                memo[key] = computeExpression(expr, obj, key);
+                var expr = pair[1], key=pair[0],
+                    keyPath = key.split('.'),
+                    lastPath = _.last(keyPath),
+                    value;
+                if (expr === 1 || expr === true){
+                    value = computeExpression('$'+key , item);
+                }
+                else {
+                    value = computeExpression(expr , item);
+                }
+                _(keyPath).reduce(function (obj, path) {
+                    obj[path] = path === lastPath ? value : obj[path] || {};
+                    return obj[path];
+                }, memo);
+
                 return memo;
             }, {});
         });
@@ -251,5 +376,81 @@
             return values;
         }
     });
+
+    // string formating utility
+    // adapted from string-format#0.2.1
+    // see https://github.com/davidchambers/string-format
+    var formatStr;
+    (function() {
+        var lookup, resolve,
+            __slice = [].slice;
+
+        formatStr  = function() {
+            var args, explicit, idx, implicit, message,
+                _this = this;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            if (args.length === 0) {
+                return function() {
+                    var args;
+                    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+                    return formatStr.apply(_this, args);
+                };
+            }
+            idx = 0;
+            explicit = implicit = false;
+            return this.replace(/([{}])\1|[{](.*?)(?:!(.+?))?[}]/g, function(match, literal, key, transformer) {
+                var fn, value, _ref, _ref1, _ref2;
+                if (literal) {
+                    return literal;
+                }
+                if (key.length) {
+                    explicit = true;
+                    if (implicit) {
+                        throw new Error('cannot switch from {implicit} to {explicit} numbering');
+                    }
+                    value = (_ref = lookup(args, key)) != null ? _ref : '';
+                } else {
+                    implicit = true;
+                    if (explicit) {
+                        throw new Error(message('explicit', 'implicit'));
+                    }
+                    value = (_ref1 = args[idx++]) != null ? _ref1 : '';
+                }
+                value = value.toString();
+                if (fn = formatStr.transformers[transformer]) {
+                    return (_ref2 = fn.call(value)) != null ? _ref2 : '';
+                } else {
+                    return value;
+                }
+            });
+        };
+
+        lookup = function(object, key) {
+            var match;
+            if (!/^(\d+)([.]|$)/.test(key)) {
+                key = '0.' + key;
+            }
+            while (match = /(.+?)[.](.+)/.exec(key)) {
+                object = resolve(object, match[1]);
+                key = match[2];
+            }
+            return resolve(object, key);
+        };
+
+        resolve = function(object, key) {
+            var value;
+            value = object[key];
+            if (typeof value === 'function') {
+                return value.call(object);
+            } else {
+                return value;
+            }
+        };
+
+        formatStr.transformers = {};
+
+        formatStr.version = '0.2.1';
+
+    }).call(this);
 
 }).call(this);
