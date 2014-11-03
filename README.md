@@ -84,19 +84,7 @@ _(collection).aggregate([{
 }];
 ```
 
-__Supported accumulators:__
-
-Name      | Version | Description
---------- | ------- | ------------
-$sum      |  1.0.0+ | Returns a sum for each group. Ignores non-numeric values.
-$avg      |  1.0.0+ | Returns an average for each group. Ignores non-numeric values.
-$first    |  1.0.0+ | Returns a value from the first document for each group..
-$max      |  1.0.0+ | Returns the highest expression value for each group.
-$min      |  1.0.0+ | Returns the lowest expression value for each group.
-$any      |  1.0.0+ | Returns true if any elements of a set evaluate to true; otherwise, returns false.
-$addToSet |  1.0.0+ | Returns an array of unique expression values for each group. Order of the array elements is undefined.
-$fn       |  1.0.0+ | Compute custom value based on group items.
-
+See below for all supported [accumulators](#accumulators).
 
 __Example:__
  
@@ -269,7 +257,8 @@ _(collection).aggregate([{
 ### Expressions
 Expressions can include :
  - [Field paths](#field-paths-expressions)
- - [Literals](##literal-expressions)
+ - [Literals](#literal-expressions)
+ - [Accumulators](#accumulators)
  - [Arithmetic operators](#arithmetic)
  - [Boolean operators](#boolean)
  - [Comparison operators](#comparison)
@@ -293,6 +282,23 @@ They are similar to functions that take arguments. In general, these expressions
 If operator accepts a single argument, you can omit the outer array designating the argument list: `{ <operator>: <argument> }`.
 
 Available operators are listed bellow.
+
+##### Accumulators
+
+Note: accumulators are availabel __only__ for [$group](#group-v100) stage.
+
+Name      | Version | Description
+--------- | ------- | ------------
+$sum      |  1.0.0+ | Returns a sum for each group. Ignores non-numeric values.
+$avg      |  1.0.0+ | Returns an average for each group. Ignores non-numeric values.
+$first    |  1.0.0+ | Returns a value from the first document for each group..
+$max      |  1.0.0+ | Returns the highest expression value for each group.
+$min      |  1.0.0+ | Returns the lowest expression value for each group.
+$any      |  1.0.0+ | Returns true if any elements of a set evaluate to true; otherwise, returns false.
+$addToSet |  1.0.0+ | Returns an array of unique expression values for each group. Order of the array elements is undefined.
+$fn       |  1.0.0+ | Compute custom value based on group items.
+
+
 
 ##### Arithmetic
 
@@ -507,15 +513,25 @@ _([{ date: '1987-04-30 12:15:59.123' }]).aggregate([
 
 ### Quick reference
 
+
  - __Stages__ :
-   - $match : `_(collection).aggregate([ ..., { $match: {  <query1>, <query2>, ... } }, ...];`
-   - $project: `_(collection).aggregate([ ..., { $project: { <spec1>, <spec2>, ... }}, ...];` with specification formatted like  `<field>: <expression>`
-   - $group : `_(collection).aggregate([ ... , { $group: { _id: <expression>, <field1>: { <accumulator1> : <expression1> }, ... }}, ...];`
+   - $match : `_(collection).aggregate([ ..., { $match: {  <query1>, <query2>, ... } }, ...];
+   - $project: `_(collection).aggregate([ ..., { $project: { <spec1>, <spec2>, ... }}, ...];` with `specification` formatted like  `<field>: <expression>`
+   - $group : `_(collection).aggregate([ ... , { $group: { _id: <expression>, <field1>: { <accumulator1> : <expression1> }, ... }}, ...];`.
    - $skip : `_(collection).aggregate([ ..., { $skip: <positive number> }, ...];`
    - $limit: `_(collection).aggregate([ ..., { $limit: <positive number> }, ...];`
  - __Expressions__ :
    - Field paths: `<field>: '$path.to.attribute'`
    - Literals:    `<field>: 'toto'` or `<field>: { $literal: 'toto'}`
+   - Accumulators (used by `$group` stage only):
+     - `$sum: <expression>`
+     - `$avg: <expression>`
+     - `$first: <expression>`
+     - `$last: <expression>`
+     - `$max: <expression>`
+     - `$min: <expression>`
+     - `$addToSet: <expression>`
+     - `$fn: <function(items)>`
    - Arithmetic operators :
      - `$add: [ <expr1>, <expr2>, ... ]`
      - `$divide: [ <expr1>, <expr2> ]`
@@ -554,7 +570,8 @@ _([{ date: '1987-04-30 12:15:59.123' }]).aggregate([
      - `$format: [ <expr1>, <expr2> ]`
      - `$format: <expression>`
    - General purpose operators:
-     - `$fn: <function>` were function has one argument which is the current item
+     - `$fn: <function(item)>`
+
 
 
 ## Credits
