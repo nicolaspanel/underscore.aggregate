@@ -132,6 +132,9 @@
             else if (_.has(expr, '$year')){
                 return computeExpression(expr['$year'], obj).year();
             }
+            else if (_.has(expr, '$valueOf')){
+                return computeExpression(expr['$valueOf'], obj).valueOf();
+            }
             // polymorphic
             else if (_.has(expr, '$format')){
 

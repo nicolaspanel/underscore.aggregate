@@ -402,6 +402,13 @@
                     }
                 }])).toEqual([{ result : moment('1987-04-30 12:15:14.666')}]);
             });
+            it('should handle $valueOf expressions', function () {
+                expect(_.aggregate([ { date: moment('1987-04-30 12:15:14.666') } ], [{
+                    $project:{
+                        result: { $valueOf: '$date' }
+                    }
+                }])).toEqual([{ result : moment('1987-04-30 12:15:14.666').valueOf()}]);
+            });
         });
 
     });

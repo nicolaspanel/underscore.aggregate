@@ -465,6 +465,7 @@ _([{ array: _.range(10) }]).aggregate([
  $year        | 1.0.0+  | Returns the [year](http://momentjs.com/docs/#/get-set/year/) as a number. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
  $format      | 1.0.0+  | Returns the date as a string formated according to the specified format. Accepts three expressions as arguments: the first argument must resolve to a [moment](http://momentjs.com/)  object and the second (optional) must resolve to a string. See [moment's documentation](http://momentjs.com/docs/#/displaying/) for more information.
  $parse       | 1.0.0+  | Create a [moment date]() object from the specified expression. Accepts a single argument expression resolving a number or a string.
+ $valueOf     | 1.1.0+  | Returns the number of milliseconds since the Unix Epoch. Accepts a single argument expression resolving a [moment](http://momentjs.com/) date object.
 
 Example : 
 ```javascript
@@ -504,6 +505,16 @@ _([{ date: '1987-04-30 12:15:59.123' }]).aggregate([
 //    "format": "12:15 PM" 
 // }];
 ```
+
+## Contributions
+Feel free to fork and improve `underscore.aggregate` in any way your want.
+
+If you feel that the community will benefit from your changes, please send a pull request :
+ - Fork the project.
+ - Make your feature addition or bug fix.
+ - Add documentation if necessary.
+ - Add tests for it. This is important so I don't break it in a future version unintentionally (run tests using `grunt test` command).
+ - Send a pull request to the `develop` branch.
 
 ## Credits
 Largely inspired by the great work of [mongodb](http://www.mongodb.org/)'s community.
