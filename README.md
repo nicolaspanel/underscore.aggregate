@@ -572,7 +572,7 @@ _([{ date: '1987-04-30 12:15:59.123' }]).aggregate([
 
 
  - __Stages__ :
-   - $match : `_(collection).aggregate([ ..., { $match: {  <query1>, <query2>, ... } }, ...];
+   - $match : `_(collection).aggregate([ ..., { $match: {  <query1>, <query2>, ... } }, ...];`
    - $project: `_(collection).aggregate([ ..., { $project: { <spec1>, <spec2>, ... }}, ...];` with `specification` formatted like  `<field>: <expression>`
    - $group : `_(collection).aggregate([ ... , { $group: { _id: <expression>, <field1>: { <accumulator1> : <expression1> }, ... }}, ...];`.
    - $skip : `_(collection).aggregate([ ..., { $skip: <positive number> }, ...];`
