@@ -2,22 +2,23 @@
 
 The aggregation pipeline is a framework for data aggregation that make your code easier to read and understand. 
 
-Collection items (objects) enter a multi-stage pipeline that transforms them and the collection itself into an aggregated results.
+Collection's items (objects) enter a multi-stage pipeline that transforms them and the collection itself into an aggregated results.
 
-
-```javascript
+```js
 _([
-    { level: 'debug', handled: true,  date: '2000-01-01 00:00' },
-    { level: 'info',  handled: false, date: '2000-01-01 01:00' },
-    { level: 'warn',  handled: false, date: '2000-01-01 02:00' },
-    { level: 'error', handled: true,  date: '2000-01-01 03:00' },
-    { level: 'info',  handled: false, date: '2000-01-01 04:00' }
-]).aggregate([,
+    { level: 'warn',  date: '1999-12-31 23:59', content: 'dates may be a problem...' },
+    { level: 'debug', date: '2000-01-01 00:00', content: 'everything seems to be fine...' },
+    { level: 'info',  date: '2000-01-01 01:00', content: 'current date is...' },
+    { level: 'warn',  date: '2000-01-01 02:00', content: 'possible memory leak...' },
+    { level: 'error', date: '2000-01-01 03:00', content: 'throw an error during date conversion...' },
+    { level: 'error', date: '2000-01-01 03:30', content: 'throw a new error during date conversion...' },
+    { level: 'info',  date: '2000-01-01 04:00', content: 'everything seems ok now...' }
+]).aggregate([
     {
         $project: {
-            level: 1,
-            handled: 1
-            date: { $parse: '$date' }
+            level: 1, // <=> level : '$level'
+            date: { $parse: '$date' }, // convert string to date
+            content: 1
         }
     },
     {
@@ -27,16 +28,41 @@ _([
                 $gte: moment('2000-01-01 00:00'),
                 $lt: moment('2000-01-02 00:00')
             },
-            handled: false
+            content: { $regex: /.*[dD]ate.*/}
         }
     },
     {
         $group: {
             _id: '$level',
-            count: { $sum: 1 }
+            count: { $sum: 1 },
+            start: { $min: '$date' },
+            messages: { $addToSet: {
+                $format: [
+                    '{0}:: {1}',                     // string template
+                    { $format: ['$date', 'HH:mm'] }, // replacement for {0}
+                    '$content'                       // replacement for {1}
+                ]
+            } }
+        }
+    },
+    {
+        $project: {
+            level: '$_id',
+            count: 1,
+            messages: 1,
+            startedAt: { $format: ['$start', 'LT']}
         }
     }
-]); // => [ { _id: 'warn', count: 1}, { _id: 'error', count: 1} ]
+]);
+// => [{
+//     level: "error",
+//     count: 2,
+//     messages: [
+//         "03:00:: throw an error during date conversion...",
+//         "03:30:: throw a new error during date conversion..."
+//     ],
+//     startedAt: "3:00 AM"
+// }]
 ```
 
 ## Installation and usage
