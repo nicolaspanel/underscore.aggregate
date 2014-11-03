@@ -298,7 +298,33 @@ $any      |  1.0.0+ | Returns true if any elements of a set evaluate to true; ot
 $addToSet |  1.0.0+ | Returns an array of unique expression values for each group. Order of the array elements is undefined.
 $fn       |  1.0.0+ | Compute custom value based on group items.
 
+__Example:__
+ 
+```javascript
+_([
+    { name: 'Maggie', gender: 'female', age: 2 },
+    { name: 'Lisa',   gender: 'female', age: 8 },
+    { name: 'Bart',   gender: 'male' ,  age: 10 },
+    { name: 'Homer',  gender: 'male' ,  age: 38 },
+    { name: 'Marge',  gender: 'female', age: 40 }
+]).aggregate([
+    {
+        $group: {
+            _id: '$gender',
+            count: { $sum: 1 },
+            avgAge : { $avg: '$age' },
+            maxAge : { $max: '$age' },
+            minAge : { $min: '$age' },
+            names :  { $addToSet: '$name'}
+        }
+    }
+]);
 
+// =>[
+//    { "_id": "female", "count": 3, "avgAge": 16.67, "maxAge": 40, "minAge": 2 , "names": [ "Maggie", "Lisa", "Marge" ] },
+//    { "_id": "male",   "count": 2, "avgAge": 24,    "maxAge": 38, "minAge": 10, "names": [ "Bart", "Homer" ] }
+// ]  
+```
 
 ##### Arithmetic
 
