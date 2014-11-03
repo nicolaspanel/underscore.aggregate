@@ -2,42 +2,70 @@
 
 The aggregation pipeline is a framework for data aggregation that make your code easier to read and understand. 
 
-Collection items (objects) enter a multi-stage pipeline that transforms them and the collection itself into an aggregated results.
+Collection's items (objects) enter a multi-stage pipeline that transforms them and the collection itself into an aggregated results.
 
-
-```javascript
+__Basic example:__
+```js
 _([
-    { level: 'debug', handled: true,  date: '2000-01-01 00:00' },
-    { level: 'info',  handled: false, date: '2000-01-01 01:00' },
-    { level: 'warn',  handled: false, date: '2000-01-01 02:00' },
-    { level: 'error', handled: true,  date: '2000-01-01 03:00' },
-    { level: 'info',  handled: false, date: '2000-01-01 04:00' }
-]).aggregate([,
-    {
-        $project: {
-            level: 1,
-            handled: 1
-            date: { $parse: '$date' }
+    { level: 'warn',  date: '1999-12-31 23:59', content: 'dates may be a problem...' },
+    { level: 'debug', date: '2000-01-01 00:00', content: 'everything seems to be fine...' },
+    { level: 'info',  date: '2000-01-01 01:00', content: 'current date is...' },
+    { level: 'warn',  date: '2000-01-01 02:00', content: 'possible memory leak...' },
+    { level: 'error', date: '2000-01-01 03:00', content: 'throw an error during date conversion...' },
+    { level: 'error', date: '2000-01-01 03:30', content: 'throw a new error during date conversion...' },
+    { level: 'info',  date: '2000-01-01 04:00', content: 'everything seems ok now...' }
+]).aggregate([
+    {  
+        $project: { // transform items for the next stage
+            level: 1, // <=> level : '$level'
+            date: { $parse: '$date' }, // convert string to date
+            content: 1
         }
     },
     {
-        $match: {
+        $match: { // filter items that match following conditions
             level: { $in: ['warn', 'error'] },
             date: {
                 $gte: moment('2000-01-01 00:00'),
                 $lt: moment('2000-01-02 00:00')
             },
-            handled: false
+            content: { $regex: /.*date.*/} // filter items whose content contains the word "date"
         }
     },
     {
-        $group: {
+        $group: { // group remaining items by level and compute aggregated infos
             _id: '$level',
-            count: { $sum: 1 }
+            count: { $sum: 1 },
+            start: { $min: '$date' },
+            messages: { $addToSet: {
+                $format: [
+                    '{0}:: {1}',                     // string template
+                    { $format: ['$date', 'HH:mm'] }, // replacement for {0}
+                    '$content'                       // replacement for {1}
+                ]
+            } }
+        }
+    },
+    {
+        $project: { // cleanup groups infos
+            level: '$_id',
+            count: 1,
+            messages: 1,
+            startedAt: { $format: ['$start', 'LT']}
         }
     }
-]); // => [ { _id: 'warn', count: 1}, { _id: 'error', count: 1} ]
+]);
+// => [{
+//     level: "error",
+//     count: 2,
+//     messages: [
+//         "03:00:: throw an error during date conversion...",
+//         "03:30:: throw a new error during date conversion..."
+//     ],
+//     startedAt: "3:00 AM"
+// }]
 ```
+__Note:__ works on nested objects too.
 
 ## Installation and usage
 1. Choose your preferred method of installation:
@@ -52,6 +80,7 @@ _([
 ```
 
 ## Reference
+_See [Quick Reference](#quick-reference) for a more compact overview._
 
 ### Stages
 The pipeline is an array of stages (i.e. sequence) that aim to transform your collection in a very predictable way.
@@ -70,7 +99,6 @@ __Note:__
     - [$limit](#limit-v100): Limits the number of items passed to the next stage
     - [$skip](#skip-v100): Skips over the specified number of items
 
-
 #### $group (_v1.0.0+_)
 
 Usage: 
@@ -84,19 +112,7 @@ _(collection).aggregate([{
 }];
 ```
 
-__Supported accumulators:__
-
-Name      | Version | Description
---------- | ------- | ------------
-$sum      |  1.0.0+ | Returns a sum for each group. Ignores non-numeric values.
-$avg      |  1.0.0+ | Returns an average for each group. Ignores non-numeric values.
-$first    |  1.0.0+ | Returns a value from the first document for each group..
-$max      |  1.0.0+ | Returns the highest expression value for each group.
-$min      |  1.0.0+ | Returns the lowest expression value for each group.
-$any      |  1.0.0+ | Returns true if any elements of a set evaluate to true; otherwise, returns false.
-$addToSet |  1.0.0+ | Returns an array of unique expression values for each group. Order of the array elements is undefined.
-$fn       |  1.0.0+ | Compute custom value based on group items.
-
+See below for all supported [accumulators](#accumulators).
 
 __Example:__
  
@@ -269,7 +285,8 @@ _(collection).aggregate([{
 ### Expressions
 Expressions can include :
  - [Field paths](#field-paths-expressions)
- - [Literals](##literal-expressions)
+ - [Literals](#literal-expressions)
+ - [Accumulators](#accumulators)
  - [Arithmetic operators](#arithmetic)
  - [Boolean operators](#boolean)
  - [Comparison operators](#comparison)
@@ -293,6 +310,49 @@ They are similar to functions that take arguments. In general, these expressions
 If operator accepts a single argument, you can omit the outer array designating the argument list: `{ <operator>: <argument> }`.
 
 Available operators are listed bellow.
+
+##### Accumulators
+
+Note: accumulators are availabel __only__ for [$group](#group-v100) stage.
+
+Name      | Version | Description
+--------- | ------- | ------------
+$sum      |  1.0.0+ | Returns a sum for each group. Ignores non-numeric values.
+$avg      |  1.0.0+ | Returns an average for each group. Ignores non-numeric values.
+$first    |  1.0.0+ | Returns a value from the first document for each group..
+$max      |  1.0.0+ | Returns the highest expression value for each group.
+$min      |  1.0.0+ | Returns the lowest expression value for each group.
+$any      |  1.0.0+ | Returns true if any elements of a set evaluate to true; otherwise, returns false.
+$addToSet |  1.0.0+ | Returns an array of unique expression values for each group. Order of the array elements is undefined.
+$fn       |  1.0.0+ | Compute custom value based on group items.
+
+__Example:__
+ 
+```javascript
+_([
+    { name: 'Maggie', gender: 'female', age: 2 },
+    { name: 'Lisa',   gender: 'female', age: 8 },
+    { name: 'Bart',   gender: 'male' ,  age: 10 },
+    { name: 'Homer',  gender: 'male' ,  age: 38 },
+    { name: 'Marge',  gender: 'female', age: 40 }
+]).aggregate([
+    {
+        $group: {
+            _id: '$gender',
+            count: { $sum: 1 },
+            avgAge : { $avg: '$age' },
+            maxAge : { $max: '$age' },
+            minAge : { $min: '$age' },
+            names :  { $addToSet: '$name'}
+        }
+    }
+]);
+
+// =>[
+//    { "_id": "female", "count": 3, "avgAge": 16.67, "maxAge": 40, "minAge": 2 , "names": [ "Maggie", "Lisa", "Marge" ] },
+//    { "_id": "male",   "count": 2, "avgAge": 24,    "maxAge": 38, "minAge": 10, "names": [ "Bart", "Homer" ] }
+// ]  
+```
 
 ##### Arithmetic
 
@@ -463,7 +523,7 @@ _([{ array: _.range(10) }]).aggregate([
  $second      | 1.0.0+  | Returns the [second](http://momentjs.com/docs/#/get-set/second/) as a number between 0 and 59. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
  $week        | 1.0.0+  | Returns the [week (Locale aware)](http://momentjs.com/docs/#/get-set/week/) as a number between 1 and 53. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
  $year        | 1.0.0+  | Returns the [year](http://momentjs.com/docs/#/get-set/year/) as a number. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
- $format      | 1.0.0+  | Returns the date as a string formated according to the specified format. Accepts three expressions as arguments: the first argument must resolve to a [moment](http://momentjs.com/)  object and the second (optional) must resolve to a string. See [moment's documentation](http://momentjs.com/docs/#/displaying/) for more information.
+ $format      | 1.0.0+  | Returns the date as a string formated according to the specified format. Accepts two expressions as arguments: the first argument must resolve to a [moment](http://momentjs.com/)  object and the second (optional) must resolve to a string. See [moment's documentation](http://momentjs.com/docs/#/displaying/) for more information.
  $parse       | 1.0.0+  | Create a [moment date]() object from the specified expression. Accepts a single argument expression resolving a number or a string.
  $valueOf     | 1.1.0+  | Returns the number of milliseconds since the Unix Epoch. Accepts a single argument expression resolving a [moment](http://momentjs.com/) date object.
 
@@ -506,10 +566,72 @@ _([{ date: '1987-04-30 12:15:59.123' }]).aggregate([
 // }];
 ```
 
+### Quick reference
+
+
+ - __Stages__ :
+   - $match : `_(collection).aggregate([ ..., { $match: {  <query1>, <query2>, ... } }, ...];
+   - $project: `_(collection).aggregate([ ..., { $project: { <spec1>, <spec2>, ... }}, ...];` with `specification` formatted like  `<field>: <expression>`
+   - $group : `_(collection).aggregate([ ... , { $group: { _id: <expression>, <field1>: { <accumulator1> : <expression1> }, ... }}, ...];`.
+   - $skip : `_(collection).aggregate([ ..., { $skip: <positive number> }, ...];`
+   - $limit: `_(collection).aggregate([ ..., { $limit: <positive number> }, ...];`
+ - __Expressions__ :
+   - Field paths: `<field>: '$path.to.attribute'`
+   - Literals:    `<field>: 'toto'` or `<field>: { $literal: 'toto'}`
+   - Accumulators (used by `$group` stage only):
+     - `$sum: <expression>`
+     - `$avg: <expression>`
+     - `$first: <expression>`
+     - `$last: <expression>`
+     - `$max: <expression>`
+     - `$min: <expression>`
+     - `$addToSet: <expression>`
+     - `$fn: <function(items)>`
+   - Arithmetic operators :
+     - `$add: [ <expr1>, <expr2>, ... ]`
+     - `$divide: [ <expr1>, <expr2> ]`
+     - `$mod: [ <expr1>, <expr2> ]`
+     - `$multiply: [ <expr1>, <expr2>, ... ]`
+     - `$subtract: [ <expr1>, <expr2> ]`
+   - Boolean operators:
+     - `$and: [ <expr1>, <expr2>, ... ]`
+     - `$or: [ <expr1>, <expr2>, ... ]`
+     - `$not: <expression>`
+   - Comparison operators:
+     - `$eq: [ <expr1>, <expr2> ]`
+     - `$ne: [ <expr1>, <expr2> ]`
+     - `$gt: [ <expr1>, <expr2> ]`
+     - `$gte: [ <expr1>, <expr2> ]`
+     - `$lt: [ <expr1>, <expr2> ]`
+     - `$lte: [ <expr1>, <expr2> ]`
+   - Array operators:
+     - `$size: <expression>`
+   - String operators
+     - `$format: [ <expr1>, <expr2>, ... ]` or  `$format: <expression> ]`
+     - `$substr: [ <expr1>, <expr2>, <expr3> ]`
+     - `$toLower: <expression>`
+     - `$toUpper: <expression>`
+   - Date operators
+     - `$dayOfMonth: <expression>`
+     - `$dayOfWeek: <expression>`
+     - `$dayOfYear: <expression>`
+     - `$hour: <expression>`
+     - `$millisecond: <expression>`
+     - `$minute: <expression>`
+     - `$month: <expression>`
+     - `$second: <expression>`
+     - `$week: <expression>`
+     - `$year: <expression>`
+     - `$format: [ <expr1>, <expr2> ]`
+     - `$format: <expression>`
+     - `$valueOf: <expression>`
+   - General purpose operators:
+     - `$fn: <function(item)>`
+
 ## Contributions
 Feel free to fork and improve `underscore.aggregate` in any way your want.
 
-If you feel that the community will benefit from your changes, please send a pull request :
+If you feel that the community will benefit from your changes, please send a [pull request](https://help.github.com/articles/using-pull-requests/) :
  - Fork the project.
  - Make your feature addition or bug fix.
  - Add documentation if necessary.
