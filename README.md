@@ -1,4 +1,4 @@
-# Underscore.aggregate
+# Underscore.aggregate [![Build Status](https://travis-ci.org/nicolaspanel/underscore.aggregate.png)](https://travis-ci.org/nicolaspanel/underscore.aggregate)
 
 The aggregation pipeline is a framework for data aggregation that make your code easier to read and understand. 
 
@@ -315,7 +315,7 @@ Available operators are listed bellow.
 
 ##### Accumulators
 
-Note: accumulators are availabel __only__ for [$group](#group-v100) stage.
+Note: accumulators are available __only__ for [$group](#group-v100) stage.
 
 Name      | Version | Description
 --------- | ------- | ------------
