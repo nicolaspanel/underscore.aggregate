@@ -80,6 +80,7 @@ __Note:__ works on nested objects too.
 ```
 
 ## Reference
+_See [Quick Reference](#quick-reference) for a more compact overview._
 
 ### Stages
 The pipeline is an array of stages (i.e. sequence) that aim to transform your collection in a very predictable way.
@@ -97,7 +98,6 @@ __Note:__
     - [$project](#project-v100): transform collection items
     - [$limit](#limit-v100): Limits the number of items passed to the next stage
     - [$skip](#skip-v100): Skips over the specified number of items
-- See [Quick Reference](#quick-reference) for a more compact overview.
 
 #### $group (_v1.0.0+_)
 
