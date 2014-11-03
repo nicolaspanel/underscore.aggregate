@@ -15,25 +15,25 @@ _([
     { level: 'error', date: '2000-01-01 03:30', content: 'throw a new error during date conversion...' },
     { level: 'info',  date: '2000-01-01 04:00', content: 'everything seems ok now...' }
 ]).aggregate([
-    {
-        $project: {
+    {  
+        $project: { // transform items for the next stage
             level: 1, // <=> level : '$level'
             date: { $parse: '$date' }, // convert string to date
             content: 1
         }
     },
     {
-        $match: {
+        $match: { // filter items that match following conditions
             level: { $in: ['warn', 'error'] },
             date: {
                 $gte: moment('2000-01-01 00:00'),
                 $lt: moment('2000-01-02 00:00')
             },
-            content: { $regex: /.*[dD]ate.*/}
+            content: { $regex: /.*date.*/} // filter items whose content contains the word "date"
         }
     },
     {
-        $group: {
+        $group: { // group remaining items by level and compute aggregated infos
             _id: '$level',
             count: { $sum: 1 },
             start: { $min: '$date' },
@@ -47,7 +47,7 @@ _([
         }
     },
     {
-        $project: {
+        $project: { // cleanup groups infos
             level: '$_id',
             count: 1,
             messages: 1,
@@ -65,6 +65,7 @@ _([
 //     startedAt: "3:00 AM"
 // }]
 ```
+__Note:__ works on nested objects too.
 
 ## Installation and usage
 1. Choose your preferred method of installation:
