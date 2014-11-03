@@ -128,7 +128,7 @@
                 var mess = '' +
                     '_(table).aggregate([{ $match : ' + JSON.stringify(q) + '  }]);' +
                     ' // => ' + JSON.stringify(result);
-                console.info(mess);
+//                console.info(mess);
             });
         });
     });
@@ -149,7 +149,7 @@
                 }
             }]);
 
-            console.info(JSON.stringify(result, null, 4));
+//            console.info(JSON.stringify(result, null, 4));
 
         });
         it('should display dates', function(){
@@ -176,7 +176,7 @@
                 }
             ]);
 
-            console.info(JSON.stringify(out, null, 4));
+//            console.info(JSON.stringify(out, null, 4));
         });
         it('should display string', function(){
             var out = _([{ hello: 'Hello', world: 'World' }]).aggregate([
@@ -196,7 +196,7 @@
                 }
             ]);
 
-            console.info(JSON.stringify(out, null, 4));
+//            console.info(JSON.stringify(out, null, 4));
         });
         it('should display comparisons', function(){
             var out = _([{ a: 1, b: 2 }]).aggregate([
@@ -212,7 +212,7 @@
                 }
             ]);
 
-            console.info(JSON.stringify(out, null, 4));
+//            console.info(JSON.stringify(out, null, 4));
         });
 
         it('should display Arithmetic', function(){
@@ -228,7 +228,7 @@
                 }
             ]);
 
-            console.info(JSON.stringify(out, null, 4));
+//            console.info(JSON.stringify(out, null, 4));
         });
         it('should display booleans', function(){
             var out = _( [{a: true,  b: false }]).aggregate([
@@ -251,7 +251,18 @@
                     }
                 }
             ]);
-            console.info(JSON.stringify(out, null, 4));
+            //console.info(JSON.stringify(out, null, 4));
+        });
+
+        describe('stackoverflow answers', function () {
+            it('should resolve http://stackoverflow.com/questions/26128647/lodash-how-to-convert-a-nested-object-into-a-unique-array', function () {
+                expect().toEqual([{
+                    _id: '1', // single group expected
+                    lowfreqrange: [100, 50],
+                    amplifier: ['narrowband', 'LNA'],
+                    package: ['connector', 'drop-in']
+                }]);
+            });
         });
     });
 }());
