@@ -1,6 +1,5 @@
 'use strict';
 
-var fs = require('fs');
 var coreFiles = [ 'underscore.aggregate.js' ];
 var confFiles = [
     'gruntfile.js',
@@ -22,11 +21,11 @@ module.exports = function (grunt) {
                     '<%= pkg.name %>#<%= pkg.version %> \n' +
                     'Copyright (C) Nicolas Panel <%= grunt.template.today("yyyy") %> \n'+
                     'MIT license \n' +
-                    '*/'
+                    '*/ \n'
           },
           full: {
             files: {
-              'aggregate.min.js': coreFiles
+              'underscore.aggregate.min.js': coreFiles
             }
           }
         },
@@ -55,6 +54,6 @@ module.exports = function (grunt) {
 
 
     grunt.registerTask('test', ['jshint:all', 'karma:default']);
-    grunt.registerTask('release', ['test', 'clean:all', 'uglify', 'git-tag']);
+    grunt.registerTask('release', ['test', 'uglify']);
     grunt.registerTask('default', ['test']);
 };

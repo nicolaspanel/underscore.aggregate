@@ -1,6 +1,6 @@
 {
     "name": "underscore.aggregate",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "description": "Mongodb-like Aggregation Pipeline for underscorejs",
     "authors": [
         "Nicolas Panel"
