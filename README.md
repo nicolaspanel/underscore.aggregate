@@ -4,6 +4,7 @@ The aggregation pipeline is a framework for data aggregation that make your code
 
 Collection's items (objects) enter a multi-stage pipeline that transforms them and the collection itself into an aggregated results.
 
+__Basic example:__
 ```js
 _([
     { level: 'warn',  date: '1999-12-31 23:59', content: 'dates may be a problem...' },
