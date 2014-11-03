@@ -21,7 +21,9 @@
         "**/.*",
         "node_modules",
         "bower_components",
-        "specs"
+        "specs",
+        "gruntfile.js",
+        "karma.conf.js"
     ],
     "dependencies": {
         "underscore": "~1.6.0",
