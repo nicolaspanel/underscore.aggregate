@@ -65,6 +65,8 @@ _([
 //     startedAt: "3:00 AM"
 // }]
 ```
+[jsFiddle](http://plnkr.co/edit/k6SUjZLB2doM9WcghDA8?p=preview)
+
 __Note:__ works on nested objects too.
 
 ## Installation and usage
