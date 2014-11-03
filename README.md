@@ -517,44 +517,44 @@ _([{ date: '1987-04-30 12:15:59.123' }]).aggregate([
    - Field paths: `<field>: '$path.to.attribute'`
    - Literals:    `<field>: 'toto'` or `<field>: { $literal: 'toto'}`
    - Arithmetic operators :
-     - `$add`: `$add: [ <expr1>, <expr2>, ... ]`
-     - `$divide`: `$divide: [ <expr1>, <expr2> ]`
-     - `$mod`: `$mod: [ <expr1>, <expr2> ]`
-     - `$multiply`: `$multiply: [ <expr1>, <expr2>, ... ]`
-     - `$subtract`: `$subtract: [ <expr1>, <expr2> ]`
+     - `$add: [ <expr1>, <expr2>, ... ]`
+     - `$divide: [ <expr1>, <expr2> ]`
+     - `$mod: [ <expr1>, <expr2> ]`
+     - `$multiply: [ <expr1>, <expr2>, ... ]`
+     - `$subtract: [ <expr1>, <expr2> ]`
    - Boolean operators:
-     - `$and`: `$and: [ <expr1>, <expr2>, ... ]`
-     - `$or`: `$or: [ <expr1>, <expr2>, ... ]`
-     - `$not`: `$not: <expression>`
+     - `$and: [ <expr1>, <expr2>, ... ]`
+     - `$or: [ <expr1>, <expr2>, ... ]`
+     - `$not: <expression>`
    - Comparison operators:
-     - `$eq`: `$eq: [ <expr1>, <expr2> ]`
-     - `$ne`: `$ne: [ <expr1>, <expr2> ]`
-     - `$gt`: `$gt: [ <expr1>, <expr2> ]`
-     - `$gte`: `$gte: [ <expr1>, <expr2> ]`
-     - `$lt`: `$lt: [ <expr1>, <expr2> ]`
-     - `$lte`: `$lte: [ <expr1>, <expr2> ]`
+     - `$eq: [ <expr1>, <expr2> ]`
+     - `$ne: [ <expr1>, <expr2> ]`
+     - `$gt: [ <expr1>, <expr2> ]`
+     - `$gte: [ <expr1>, <expr2> ]`
+     - `$lt: [ <expr1>, <expr2> ]`
+     - `$lte: [ <expr1>, <expr2> ]`
    - Array operators:
-     - `$size`: `$size: <expression>`
+     - `$size: <expression>`
    - String operators
-     - `$format`: '$format: [ <expr1>, <expr2>, ... ]` or  `$format: <expression> ]`
-     - `$substr`: '$substr: [ <expr1>, <expr2>, <expr3> ]`
-     - `$toLower`: '$toLower: <expression>`
-     - `$toUpper`: '$toUpper: <expression>`
+     - `$format: [ <expr1>, <expr2>, ... ]` or  `$format: <expression> ]`
+     - `$substr: [ <expr1>, <expr2>, <expr3> ]`
+     - `$toLower: <expression>`
+     - `$toUpper: <expression>`
    - Date operators
-     - `$dayOfMonth`: `$dayOfMonth: <expression>`
-     - `$dayOfWeek`: `$dayOfWeek: <expression>`
-     - `$dayOfYear`: `$dayOfYear: <expression>`
-     - `$hour`: `$hour: <expression>`
-     - `$millisecond`: `$millisecond: <expression>`
-     - `$minute`: `$minute: <expression>`
-     - `$month`: `$month: <expression>`
-     - `$second`: `$second: <expression>`
-     - `$week`: `$week: <expression>`
-     - `$year`: `$year: <expression>`
-     - `$format`: `$format: [ <expr1>, <expr2> ]`
-     - `$parse`: `$format: <expression>`
+     - `$dayOfMonth: <expression>`
+     - `$dayOfWeek: <expression>`
+     - `$dayOfYear: <expression>`
+     - `$hour: <expression>`
+     - `$millisecond: <expression>`
+     - `$minute: <expression>`
+     - `$month: <expression>`
+     - `$second: <expression>`
+     - `$week: <expression>`
+     - `$year: <expression>`
+     - `$format: [ <expr1>, <expr2> ]`
+     - `$format: <expression>`
    - General purpose operators:
-     - `$fn`: '$fn: <function>' were function has one argument which is the current item
+     - `$fn: <function>` were function has one argument which is the current item
 
 
 ## Credits
