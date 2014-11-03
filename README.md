@@ -214,7 +214,7 @@ _(collection).aggregate([{
 ```
 
 
-__Supported syntax for specifications :
+__Supported syntax for specifications :__
 
 
 Syntax                      | Version | Description
@@ -222,6 +222,30 @@ Syntax                      | Version | Description
 ```<field>: <1 or true>```  | 1.0.0+  | Specify the inclusion of a field.
 ```<field>: <expression>``` | 1.0.0+  | Add a new field or reset the value of an existing field.
 
+
+
+Example:
+```javascript
+_([{
+    name: 'Homer Simpson',
+    gender: 'male' ,
+    address : { n: 742, road: 'Evergreen Terrace', city: 'Springfield' },
+    birthday: moment('1955-05-12')
+}]).aggregate([{
+    $project :  {
+        name : 1,
+        address: { $format: '{address.n} {address.road}, {address.city}' },
+        age : { $subtract: [moment().year(), { $year: '$birthday' } ] }
+    }
+}]);
+// => [{   
+//    name: "Homer Simpson", 
+//    address: "742 Evergreen Terrace, Springfield", 
+//    age: 59 
+// }]
+```
+
+__Note:__ See [expressions](#expressions) for more information about options. 
 
 #### $limit (_v1.0.0+_)
 Limits the number of items passed to the next stage in the pipeline.

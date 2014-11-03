@@ -134,13 +134,18 @@
             }
             // polymorphic
             else if (_.has(expr, '$format')){
-                var args = _(expr['$format']).map(function(arg){
+
+                var args = _.isArray(expr['$format']) ? _(expr['$format']).map(function(arg){
                     return computeExpression(arg, obj);
-                });
-                if (_.isString(args[0])){
-                    if (args.length === 1){
-                        return formatStr.apply(args[0], [obj]);
-                    }
+                }) : computeExpression(expr['$format'], obj);
+
+                if (_.isString(args)){
+                    return formatStr.apply(args, [obj]);
+                }
+                else if (args.length === 1 && _.isString(args[0])){
+                    return formatStr.apply(args[0], [obj]);
+                }
+                else if ( _.isString(args[0])){
                     return formatStr.apply(args[0], _.rest(args, 1));
                 }
                 else {

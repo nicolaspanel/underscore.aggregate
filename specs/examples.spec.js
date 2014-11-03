@@ -135,24 +135,22 @@
 
     describe('expressions', function(){
         it('should display field paths', function () {
-            var homer = {
+
+            var result = _([{
                 name: 'Homer Simpson',
                 gender: 'male' ,
                 address : { n: 742, road: 'Evergreen Terrace', city: 'Springfield' },
                 birthday: moment('1955-05-12')
-            };
-            var paths = [
-                { name : 1 },
-                { nbKids : { $literal: 3 } }
-            ];
+            }]).aggregate([{
+                $project :  {
+                    name : 1,
+                    address: { $format: '{address.n} {address.road}, {address.city}' },
+                    age : { $subtract: [moment().year(), { $year: '$birthday' } ] }
+                }
+            }]);
 
-            _.each(paths, function(p){
-                var result = _([homer]).aggregate([{ $project : p  }]);
-                var mess = '' +
-                    '_([homer]).aggregate([{ $project : ' + JSON.stringify(p) + '  }]);' +
-                    ' // => ' + JSON.stringify(result);
-                console.info(mess);
-            });
+            console.info(JSON.stringify(result, null, 4));
+
         });
         it('should display dates', function(){
             var out = _([{date: '1987-04-30 12:15:59.123'}]).aggregate([
