@@ -72,7 +72,7 @@ __Note:__ works on nested objects too.
 ## Installation and usage
 1. Choose your preferred method of installation:
  - Through bower: `bower install --save underscore.aggregate`
- - Download from Github: [underscore.aggregate.min.js](https://raw.github.com/nicolaspanel/underscore.aggregate/underscore.aggregate.min.js)
+ - Download from Github: [underscore.aggregate.min.js](https://cdn.rawgit.com/nicolaspanel/underscore.aggregate/master/underscore.aggregate.min.js)
 
 2. Include [underscore](http://underscorejs.org/), [moment](http://momentjs.com/) and [underscore.aggregate](#) in your application:
 ```html
