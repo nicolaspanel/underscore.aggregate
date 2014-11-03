@@ -69,7 +69,7 @@ __Note:__
     - [$project](#project-v100): transform collection items
     - [$limit](#limit-v100): Limits the number of items passed to the next stage
     - [$skip](#skip-v100): Skips over the specified number of items
-
+- See [Quick Reference](#quick-reference) for a more compact overview.
 
 #### $group (_v1.0.0+_)
 
@@ -504,6 +504,58 @@ _([{ date: '1987-04-30 12:15:59.123' }]).aggregate([
 //    "format": "12:15 PM" 
 // }];
 ```
+
+### Quick reference
+
+ - __Stages__ :
+   - $match : `_(collection).aggregate([ ..., { $match: {  <query1>, <query2>, ... } }, ...];`
+   - $project: `_(collection).aggregate([ ..., { $project: { <spec1>, <spec2>, ... }}, ...];` with specification formatted like  `<field>: <expression>`
+   - $group : `_(collection).aggregate([ ... , { $group: { _id: <expression>, <field1>: { <accumulator1> : <expression1> }, ... }}, ...];`
+   - $skip : `_(collection).aggregate([ ..., { $skip: <positive number> }, ...];`
+   - $limit: `_(collection).aggregate([ ..., { $limit: <positive number> }, ...];`
+ - __Expressions__ :
+   - Field paths: `<field>: '$path.to.attribute'`
+   - Literals:    `<field>: 'toto'` or `<field>: { $literal: 'toto'}`
+   - Arithmetic operators :
+     - `$add`: `$add: [ <expr1>, <expr2>, ... ]`
+     - `$divide`: `$divide: [ <expr1>, <expr2> ]`
+     - `$mod`: `$mod: [ <expr1>, <expr2> ]`
+     - `$multiply`: `$multiply: [ <expr1>, <expr2>, ... ]`
+     - `$subtract`: `$subtract: [ <expr1>, <expr2> ]`
+   - Boolean operators:
+     - `$and`: `$and: [ <expr1>, <expr2>, ... ]`
+     - `$or`: `$or: [ <expr1>, <expr2>, ... ]`
+     - `$not`: `$not: <expression>`
+   - Comparison operators:
+     - `$eq`: `$eq: [ <expr1>, <expr2> ]`
+     - `$ne`: `$ne: [ <expr1>, <expr2> ]`
+     - `$gt`: `$gt: [ <expr1>, <expr2> ]`
+     - `$gte`: `$gte: [ <expr1>, <expr2> ]`
+     - `$lt`: `$lt: [ <expr1>, <expr2> ]`
+     - `$lte`: `$lte: [ <expr1>, <expr2> ]`
+   - Array operators:
+     - `$size`: `$size: <expression>`
+   - String operators
+     - `$format`: '$format: [ <expr1>, <expr2>, ... ]` or  `$format: <expression> ]`
+     - `$substr`: '$substr: [ <expr1>, <expr2>, <expr3> ]`
+     - `$toLower`: '$toLower: <expression>`
+     - `$toUpper`: '$toUpper: <expression>`
+   - Date operators
+     - `$dayOfMonth`: `$dayOfMonth: <expression>`
+     - `$dayOfWeek`: `$dayOfWeek: <expression>`
+     - `$dayOfYear`: `$dayOfYear: <expression>`
+     - `$hour`: `$hour: <expression>`
+     - `$millisecond`: `$millisecond: <expression>`
+     - `$minute`: `$minute: <expression>`
+     - `$month`: `$month: <expression>`
+     - `$second`: `$second: <expression>`
+     - `$week`: `$week: <expression>`
+     - `$year`: `$year: <expression>`
+     - `$format`: `$format: [ <expr1>, <expr2> ]`
+     - `$parse`: `$format: <expression>`
+   - General purpose operators:
+     - `$fn`: '$fn: <function>' were function has one argument which is the current item
+
 
 ## Credits
 Largely inspired by the great work of [mongodb](http://www.mongodb.org/)'s community.
