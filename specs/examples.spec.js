@@ -256,7 +256,44 @@
 
         describe('stackoverflow answers', function () {
             it('should resolve http://stackoverflow.com/questions/26128647/lodash-how-to-convert-a-nested-object-into-a-unique-array', function () {
-                expect().toEqual([{
+                expect(_([
+                    {
+                        id: 123123,
+                        name: 'Some Product',
+                        atts: {
+                            lowfreqrange: 100,
+                            package: 'connector',
+                            amplifier: 'narrowband'
+                        }
+                    },
+                    {
+                        id: 5556652,
+                        name: 'Some Second Product',
+                        atts: {
+                            lowfreqrange: 50,
+                            package: 'drop-in',
+                            amplifier: 'LNA'
+                        }
+                    },
+                    {
+                        id: 5465456,
+                        name: 'Some 2 Product',
+                        atts:{
+                            lowfreqrange: 100,
+                            package: 'connector',
+                            amplifier: 'narrowband'
+                        }
+                    }
+                ]).aggregate([
+                    {
+                        $group: {
+                            _id: 1, // single group expected
+                            lowfreqrange: { $addToSet: '$atts.lowfreqrange' },
+                            amplifier: { $addToSet: '$atts.amplifier' },
+                            package: { $addToSet: '$atts.package' }
+                        }
+                    }
+                ])).toEqual([{
                     _id: '1', // single group expected
                     lowfreqrange: [100, 50],
                     amplifier: ['narrowband', 'LNA'],
