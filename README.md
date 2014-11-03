@@ -463,7 +463,7 @@ _([{ array: _.range(10) }]).aggregate([
  $second      | 1.0.0+  | Returns the [second](http://momentjs.com/docs/#/get-set/second/) as a number between 0 and 59. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
  $week        | 1.0.0+  | Returns the [week (Locale aware)](http://momentjs.com/docs/#/get-set/week/) as a number between 1 and 53. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
  $year        | 1.0.0+  | Returns the [year](http://momentjs.com/docs/#/get-set/year/) as a number. Accepts a single argument expression resolving a [moment](http://momentjs.com/) object. 
- $format      | 1.0.0+  | Returns the date as a string formated according to the specified format. Accepts three expressions as arguments: the first argument must resolve to a [moment](http://momentjs.com/)  object and the second (optional) must resolve to a string. See [moment's documentation](http://momentjs.com/docs/#/displaying/) for more information.
+ $format      | 1.0.0+  | Returns the date as a string formated according to the specified format. Accepts two expressions as arguments: the first argument must resolve to a [moment](http://momentjs.com/)  object and the second (optional) must resolve to a string. See [moment's documentation](http://momentjs.com/docs/#/displaying/) for more information.
  $parse       | 1.0.0+  | Create a [moment date]() object from the specified expression. Accepts a single argument expression resolving a number or a string.
 
 Example : 
