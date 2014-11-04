@@ -29,6 +29,9 @@
                     case '$limit':
                         values = _(values).first( pipe['$limit']);
                         break;
+                    case '$objectify':
+                        values = $objectify(values, pipe[key]);
+                        return;
                     default:
                         throw Error(key + ' pipes are not supported (yet?)');
                 }
@@ -202,6 +205,54 @@
         }
     };
 
+    var computeAccumulation = function(accumulator, expression, items){
+        switch(accumulator){
+            case '$sum':
+                return _.reduce(items, function(sum, item){
+                    var value = computeExpression(expression, item) || 0;
+                    if (_.isNumber(value)){
+                        sum += value;
+                    }
+                    return sum ;
+                }, 0);
+            case '$avg':
+                var nbValues = 0;
+                return _.reduce(items, function(sum, item){
+                    var value = computeExpression(expression, item);
+                    if (_.isNumber(value)){
+                        sum += value;
+                        nbValues++;
+                    }
+                    return sum ;
+                }, 0) / nbValues;
+            case '$first':
+                return computeExpression(expression, _.first(items));
+            case '$last':
+                return computeExpression(expression, _.last(items));
+            case '$max':
+                return computeExpression(expression, _.max(items, function(item){
+                    return computeExpression(expression, item) || 0;
+                }));
+            case '$min':
+                return computeExpression(expression, _.min(items, function(item){
+                    return computeExpression(expression, item) || 0;
+                }));
+            case '$any':
+                return _.some(items, function(item){
+                    return computeExpression(expression, item);
+                });
+            case '$fn':
+                return expression(items);
+            case '$addToSet':
+                return _.uniq(_.map(items, function(item){
+                    return computeExpression(expression, item);
+                }));
+            default:
+                var err = 'Accumulator "' + JSON.stringify(accumulator) + '" not supported';
+                throw Error(err);
+        }
+    };
+
     var satisfyQuery = function(item, key, conditions){
         var value = _(key.split('.')).reduce(function (memo, objKey) {
             if (_.isObject(item)){
@@ -273,56 +324,9 @@
                 if (key === '_id'){
                     // do nothing
                 }
-                else if (_.isObject(expr) && _.has(expr, '$sum')) {
-                    result[key] = _.reduce(groupItems, function(sum, item){
-                        var value = computeExpression(expr['$sum'], item) || 0;
-                        if (_.isNumber(value)){
-                            sum += value;
-                        }
-                        return sum ;
-                    }, 0);
-                }
-                else if (_.isObject(expr) && _.has(expr, '$avg')) {
-                    var nbValues = 0;
-                    result[key] = _.reduce(groupItems, function(sum, item){
-                        var value = computeExpression(expr['$avg'], item);
-                        if (_.isNumber(value)){
-                            sum += value;
-                            nbValues++;
-                        }
-                        return sum ;
-                    }, 0) / nbValues;
-                }
-                else if (_.isObject(expr) && _.has(expr, '$first')) {
-                    result[key] = computeExpression(expr['$first'], _.first(groupItems));
-                }
-                else if (_.isObject(expr) && _.has(expr, '$last')) {
-                    result[key] = computeExpression(expr['$last'], _.last(groupItems));
-                }
-                else if (_.isObject(expr) && _.has(expr, '$max')) {
-                    var maxObj = _.max(groupItems, function(item){
-                        return computeExpression(expr['$max'], item) || 0;
-                    });
-                    result[key] = computeExpression(expr['$max'], maxObj);
-                }
-                else if (_.isObject(expr) && _.has(expr, '$min')) {
-                    var minObj = _.min(groupItems, function(item){
-                        return computeExpression(expr['$min'], item) || 0;
-                    });
-                    result[key] = computeExpression(expr['$min'], minObj);
-                }
-                else if (_.isObject(expr) && _.has(expr, '$any')) {
-                    result[key] = _.some(groupItems, function(item){
-                        return computeExpression(expr['$any'], item);
-                    });
-                }
-                else if (_.isObject(expr) && _.has(expr, '$fn')) {
-                    result[key] = expr['$fn'](groupItems);
-                }
-                else if (_.isObject(expr) && _.has(expr, '$addToSet')) {
-                    result[key] = _.uniq(_.map(groupItems, function(item){
-                        return computeExpression(expr['$addToSet'], item);
-                    }));
+                else if (_.isObject(expr)){
+                    var acc = _.keys(expr)[0];
+                    result[key] = computeAccumulation(acc, expr[acc], groupItems);
                 }
                 else {
                     var err = '' +
@@ -395,6 +399,20 @@
         }, values);
     };
 
+    var $objectify = function(values, pipeOptions){
+        var options = _.extend({
+            _key: '$_id',
+            _value: '$'
+        }, pipeOptions || {});
+
+        return _(values).reduce(function(memo, item){
+            var key = computeExpression(options._key, item),
+                value = computeExpression(options._value, item);
+            memo[key] = value;
+            return memo;
+        }, {});
+
+    };
 
     // string formating utility
     // adapted from string-format#0.2.1

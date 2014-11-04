@@ -100,6 +100,7 @@ __Note:__
     - [$project](#project-v100): transform collection items
     - [$limit](#limit-v100): Limits the number of items passed to the next stage
     - [$skip](#skip-v100): Skips over the specified number of items
+    - [$objectify](#objectify-v120): Reduce items to a single object using `_key/_value` pairs
 
 #### $group (_v1.0.0+_)
 
@@ -282,6 +283,33 @@ Usage:
 _(collection).aggregate([{ 
     $skip: <positive number> 
 }];
+```
+
+#### $objectify (_v1.2.0+_)
+Reduce items to a single object using `_key/_value` pairs
+
+Usage: 
+```javascript
+_(collection).aggregate([
+ ... // previous stages
+ { $objectify: { _key: <expression>, _value: <expression> } }
+];
+```
+
+__Notes:__
+ - Default values are `{ _key: '$_id', _value: '$' }`.
+ - `_key` expression must resolve to a unique value for each item.
+ - $objectify stage must be at the end of the pipeline (following stages will be ignored).
+
+Example: 
+```javascript
+_([
+    { type: 'a', count : 1 },
+    { type: 'b', count: 2 },
+    { type: 'c', count: 3 }
+]).aggregate([
+    { $objectify: { _key: '$type', _value: '$count'} }
+]); // => { a: 1, b: 2, c: 3 }
 ```
 
 ### Expressions
@@ -570,13 +598,13 @@ _([{ date: '1987-04-30 12:15:59.123' }]).aggregate([
 
 ### Quick reference
 
-
  - __Stages__ :
    - $match : `_(collection).aggregate([ ..., { $match: {  <query1>, <query2>, ... } }, ...];`
    - $project: `_(collection).aggregate([ ..., { $project: { <spec1>, <spec2>, ... }}, ...];` with `specification` formatted like  `<field>: <expression>`
    - $group : `_(collection).aggregate([ ... , { $group: { _id: <expression>, <field1>: { <accumulator1> : <expression1> }, ... }}, ...];`.
    - $skip : `_(collection).aggregate([ ..., { $skip: <positive number> }, ...];`
    - $limit: `_(collection).aggregate([ ..., { $limit: <positive number> }, ...];`
+   - $objectify: `_(collection).aggregate([ ..., { objectify: { _key: <expression>, _value:<expression> } }];`
  - __Expressions__ :
    - Field paths: `<field>: '$path.to.attribute'`
    - Literals:    `<field>: 'toto'` or `<field>: { $literal: 'toto'}`
