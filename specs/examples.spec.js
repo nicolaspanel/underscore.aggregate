@@ -255,7 +255,7 @@
         });
 
         describe('stackoverflow answers', function () {
-            it('should resolve http://stackoverflow.com/questions/26128647/lodash-how-to-convert-a-nested-object-into-a-unique-array', function () {
+            it('should solve http://stackoverflow.com/questions/26128647/lodash-how-to-convert-a-nested-object-into-a-unique-array', function () {
                 expect(_([
                     {
                         id: 123123,
@@ -299,6 +299,84 @@
                     amplifier: ['narrowband', 'LNA'],
                     package: ['connector', 'drop-in']
                 }]);
+            });
+
+            it('should solve http://stackoverflow.com/questions/17834453/filtering-an-object-array-with-duplicate-titles-and-unique-description', function () {
+                expect(_([
+                    {
+                        'Title': 'New York',
+                        'Description': 'A healthy and modernized transit system'
+                    },
+                    {
+                        'Title': 'New York',
+                        'Description': 'changed transit system'
+                    },
+                    {
+                        'Title': 'New York',
+                        'Description': 'xyz'
+                    },
+                    {
+                        'Title': 'New York',
+                        'Description': 'abc'
+                    },
+                    {
+                        'Title': 'chicago',
+                        'Description': 'jdfjjfj'
+                    },
+                    {
+                        'Title': 'chicago',
+                        'Description': 'abcdfdjf'
+                    }
+                ]).aggregate([
+                    {
+                        $group: { _id: '$Title', Descriptions: { $addToSet: '$Description' } }
+                    },
+                    {
+                        $project: { Title: '$_id', Descriptions: '$Descriptions' }
+                    }
+                ])).toEqual([
+                    {
+                        Title: 'New York',
+                        Descriptions: [
+                            'A healthy and modernized transit system',
+                            'changed transit system',
+                            'xyz',
+                            'abc'
+                        ]
+                    },
+                    {
+                        Title: 'chicago',
+                        Descriptions: [
+                            'jdfjjfj',
+                            'abcdfdjf'
+                        ]
+                    }
+                ]);
+            });
+
+            it('should solve http://stackoverflow.com/questions/21330689/underscore-how-to-filter-the-object-using-multiple-values', function () {
+                expect(_([
+                    {'name':'one', 'age':'3'},
+                    {'name':'two', 'age':'1'},
+                    {'name':'three', 'age':'3'},
+                    {'name':'four', 'age':'1'},
+                    {'name':'one', 'age':'7'},
+                    {'name':'one', 'age':'5'},
+                    {'name':'one', 'age':'7'},
+                    {'name':'one', 'age':'8'},
+                    {'name':'one', 'age':'7'},
+                    {'name':'one', 'age':'11'},
+                    {'name':'one', 'age':'7'}
+                ]).aggregate([
+                    {
+                        $match: { age: { $nin : ['7', '8', '5', '11']} }
+                    }
+                ])).toEqual([
+                    {'name':'one', 'age':'3'},
+                    {'name':'two', 'age':'1'},
+                    {'name':'three', 'age':'3'},
+                    {'name':'four', 'age':'1'}
+                ]);
             });
         });
     });

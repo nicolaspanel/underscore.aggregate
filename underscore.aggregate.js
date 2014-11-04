@@ -2,7 +2,40 @@
 
 (function() {
 
-
+    _.mixin({
+        aggregate: function(array, pipeline){
+            var values = array || [];
+            _(pipeline).each(function(pipe){
+                var key = _.keys(pipe)[0];
+                if (!key){
+                    throw Error('Invalid pipe : ' + JSON.stringify(pipe));
+                }
+                switch (key){
+                    case '$project':
+                    case '$map':
+                        values = $project(values, pipe[key]);
+                        break;
+                    case '$group':
+                        values = $group(values, pipe[key]);
+                        break;
+                    case '$match':
+                    case '$filter':
+                    case '$where':
+                        values = $match(values, pipe[key]);
+                        break;
+                    case '$skip':
+                        values = _(values).rest(pipe['$skip']);
+                        break;
+                    case '$limit':
+                        values = _(values).first( pipe['$limit']);
+                        break;
+                    default:
+                        throw Error(key + ' pipes are not supported (yet?)');
+                }
+            });
+            return values;
+        }
+    });
 
     var computeExpression = function(expr, obj){
 
@@ -303,6 +336,9 @@
     };
 
     var $project = function(values, pipeOptions){
+        if (_.isString(pipeOptions)){
+            return _(values).map(function(item){ return computeExpression(pipeOptions, item); });
+        }
         var pairs = _.pairs(pipeOptions);
 
         return _(values).map(function(item){
@@ -359,37 +395,6 @@
         }, values);
     };
 
-    _.mixin({
-        aggregate: function(array, pipeline){
-            var values = array || [];
-            _(pipeline).each(function(pipe){
-                var key = _.keys(pipe)[0];
-                if (!key){
-                    throw Error('Invalid pipe : ' + JSON.stringify(pipe));
-                }
-                switch (key){
-                    case '$project':
-                        values = $project(values, pipe[key]);
-                        break;
-                    case '$group':
-                        values = $group(values, pipe[key]);
-                        break;
-                    case '$match':
-                        values = $match(values, pipe[key]);
-                        break;
-                    case '$skip':
-                        values = _(values).rest(pipe['$skip']);
-                        break;
-                    case '$limit':
-                        values = _(values).first( pipe['$limit']);
-                        break;
-                    default:
-                        throw Error(key + ' pipes are not supported (yet?)');
-                }
-            });
-            return values;
-        }
-    });
 
     // string formating utility
     // adapted from string-format#0.2.1

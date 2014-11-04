@@ -3,6 +3,7 @@
 (function() {
 
     describe('$project', function(){
+
         describe('Field path Expressions', function () {
             it('should keep included fields', function(){
                 expect(_.aggregate([{foo: 'bar', keep: false}], [{
@@ -26,6 +27,24 @@
                         newField: '$foo'
                     }
                 }])).toEqual([{ newField: 'bar'  }]);
+            });
+            it('should handle global reference#1', function(){
+                expect(_.aggregate([  {foo: 'bar'} ], [{
+                    $project: '$'
+                }])).toEqual([ {foo: 'bar'}]);
+            });
+            it('should handle global reference#1', function(){
+                expect(_.aggregate([  {foo: 'bar'} ], [{
+                    $project: '$foo'
+                }])).toEqual([ 'bar' ]);
+            });
+        });
+
+        describe('Alias', function(){
+            it('should support $map alias', function(){
+                expect(_.aggregate([  {foo: 'bar'} ], [{
+                    $map: '$foo'
+                }])).toEqual([ 'bar' ]);
             });
         });
 

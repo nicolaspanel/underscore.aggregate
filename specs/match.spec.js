@@ -283,7 +283,22 @@
             });
         });
 
-
+        describe('Alias', function(){
+            it('should support $filter alias', function(){
+                expect(_.aggregate([  {foo: 'bar'} ], [{
+                    $filter: {
+                        foo: 'bar'
+                    }
+                }])).toEqual([ {foo: 'bar'} ]);
+            });
+            it('should support $whore alias', function(){
+                expect(_.aggregate([  {foo: 'bar'} ], [{
+                    $where: {
+                        foo: 'bar'
+                    }
+                }])).toEqual([ {foo: 'bar'} ]);
+            });
+        });
     });
 
 }());
