@@ -19,7 +19,7 @@ _([
         $project: { // transform items for the next stage
             level: 1, // <=> level : '$level'
             date: { $parse: '$date' }, // convert string to date
-            content: 1
+            content: 1 // persist content attribute
         }
     },
     {
@@ -95,24 +95,29 @@ _(collection).aggregate( [ { <stage1> }, { <stage2> }, ... ] );
 __Note:__
 - Collection items pass through the stages in sequence.
 - Possible stages are:
-    - [$group](#group-v100) : group collection items
-    - [$match](#match-v100) : filter the collection
-    - [$project](#project-v100): transform collection items
+    - [$group](#group-v100) : groups collection items
+    - [$match](#match-v100) : filters the collection
+    - [$project](#project-v100): transforms collection items
     - [$limit](#limit-v100): Limits the number of items passed to the next stage
     - [$skip](#skip-v100): Skips over the specified number of items
-    - [$objectify](#objectify-v120): Reduce items to a single object using `_key/_value` pairs
+    - [$objectify](#objectify-v120): Reduces items to a single object using `_key/_value` pairs
+    - [$sort](#sort-v130): Returns items in sorted order.
 
 #### $group (_v1.0.0+_)
 
 Usage: 
 ```javascript
-_(collection).aggregate([{ 
-    $group: { 
-        _id: <expression>, 
-        <field1>: { <accumulator1> : <expression1> }, 
-        ... 
-    } 
-}];
+_(collection).aggregate([
+    ... ,
+    { 
+        $group: { 
+            _id: <expression>, 
+            <field1>: { <accumulator1> : <expression1> }, 
+            ... 
+        } 
+    },
+    ...
+]);
 ```
 
 See below for all supported [accumulators](#accumulators).
@@ -152,13 +157,17 @@ Filters the items that match the specified condition(s) to the next pipeline sta
 
 Usage: 
 ```javascript
-_(collection).aggregate([{ 
-    $match: { 
-        <query1>, 
-        <query2>, 
-        ... 
-    } 
-}];
+_(collection).aggregate([
+    ... ,
+    { 
+        $match: { 
+            <query1>, 
+            <query2>, 
+            ... 
+        } 
+    },
+    ...
+];
 ```
 
 __Supported syntax for queries :__
@@ -222,13 +231,17 @@ The specified fields can be existing fields from the input object or newly compu
 
 Usage: 
 ```javascript
-_(collection).aggregate([{ 
-    $project: { 
-        <specification1>, 
-        <specification2>, 
-        ... 
-    } 
-}];
+_(collection).aggregate([
+    ... ,
+    { 
+        $project: { 
+            <specification1>, 
+            <specification2>, 
+            ... 
+        } 
+    },
+    ...
+]);
 ```
 
 
@@ -270,9 +283,11 @@ Limits the number of items passed to the next stage in the pipeline.
 
 Usage: 
 ```javascript
-_(collection).aggregate([{ 
-    $limit: <positive number> 
-}];
+_(collection).aggregate([
+    ... ,
+    {  $limit: <positive number>  },
+    ...
+]);
 ```
 
 #### $skip (_v1.0.0+_)
@@ -280,9 +295,11 @@ Skips over the specified number of items that pass into the stage and passes the
 
 Usage: 
 ```javascript
-_(collection).aggregate([{ 
-    $skip: <positive number> 
-}];
+_(collection).aggregate([
+    ... ,
+    { $skip: <positive number> },
+    ...
+]);
 ```
 
 #### $objectify (_v1.2.0+_)
@@ -291,9 +308,9 @@ Reduce items to a single object using `_key/_value` pairs
 Usage: 
 ```javascript
 _(collection).aggregate([
- ... // previous stages
- { $objectify: { _key: <expression>, _value: <expression> } }
-];
+   ... ,
+   { $objectify: { _key: <expression>, _value: <expression> } }
+]);
 ```
 
 __Notes:__
@@ -310,6 +327,39 @@ _([
 ]).aggregate([
     { $objectify: { _key: '$type', _value: '$count'} }
 ]); // => { a: 1, b: 2, c: 3 }
+```
+
+
+#### $sort (_v1.3.0+_)
+Returns items in sorted order.
+
+Takes an object that specifies the field to sort by and the respective sort order. `<sort order>` can have one of the following values:
+ - `1` to specify ascending order.
+ - `-1` to specify descending order.
+
+Alias: __$order__, __$sortBy__, __$orderBy__
+
+Usage: 
+```javascript
+_(collection).aggregate([
+    ... ,
+    { $sort: { <field>: <sort order> },
+    ...
+]);
+```
+
+Example: 
+```javascript
+_([
+    { type: 'a', count : 3 },
+    { type: 'b', count: 1 },
+    { type: 'c', count: 2 }
+]).aggregate([ { $sort: { count: -1 } }]); 
+// => [
+//     { type: 'a', count : 3 },
+//     { type: 'c', count: 2 },
+//     { type: 'b', count: 1 }
+// ]
 ```
 
 ### Expressions

@@ -23,6 +23,12 @@
                     case '$where':
                         values = $match(values, pipe[key]);
                         break;
+                    case '$sort':
+                    case '$order':
+                    case '$sortBy':
+                    case '$orderBy':
+                        values = $sort(values, pipe[key]);
+                        break;
                     case '$skip':
                         values = _(values).rest(pipe['$skip']);
                         break;
@@ -405,6 +411,16 @@
         }, values);
     };
 
+    var $sort = function(values, pipeOptions){
+        return _(_.pairs(pipeOptions)).reduce(function (memo, pair) {
+            var key = '$' + pair[0], desc = pair[1] === -1;
+            var sorted = _(values).sortBy(function (item) {
+                return computeExpression(key, item);
+            });
+            return desc ? sorted.reverse() : sorted;
+        }, values);
+    };
+
     var $objectify = function(values, pipeOptions){
         var options = _.extend({
             _key: '$_id',
@@ -412,9 +428,8 @@
         }, pipeOptions || {});
 
         return _(values).reduce(function(memo, item){
-            var key = computeExpression(options._key, item),
-                value = computeExpression(options._value, item);
-            memo[key] = value;
+            var key = computeExpression(options._key, item);
+            memo[key] = computeExpression(options._value, item);
             return memo;
         }, {});
 

@@ -378,6 +378,67 @@
                     {'name':'four', 'age':'1'}
                 ]);
             });
+
+            it('should solve http://stackoverflow.com/questions/12787514/reduce-javascript-array-with-underscore-js-or-with-pure-javascript', function(){
+                var currentDate = moment('2000-11-05T22:15:30Z'),
+                    items = [
+                    {'id':'338b79f07dfe8b3877b3aa41a5bb8a58','date':'2000-10-05T13:21:30Z','value': {'country':'United States'}},
+                    {'id':'338b79f07dfe8b3877b3aa41a5bb983e','date':'2000-02-05T13:21:30Z','value': {'country':'Norway'}},
+                    {'id':'338b79f07dfe8b3877b3aa41a5ddfefe','date':'2000-12-05T13:21:30Z','value': {'country':'Hungary'}},
+                    {'id':'338b79f07dfe8b3877b3aa41a5fe29d7','date':'2000-05-05T13:21:30Z','value': {'country':'United States'}},
+                    {'id':'b6ed02fb38d6506d7371c419751e8a14','date':'2000-05-05T18:15:30Z','value': {'country':'Germany'}},
+                    {'id':'b6ed02fb38d6506d7371c419753e20b6','date':'2000-12-05T18:15:30Z','value': {'country':'Hungary'}},
+                    {'id':'b6ed02fb38d6506d7371c419755f34ad','date':'2000-06-05T18:15:30Z','value': {'country':'United States'}},
+                    {'id':'b6ed02fb38d6506d7371c419755f3e17','date':'2000-04-05T22:15:30Z','value': {'country':'Germany'}},
+                    {'id':'338b79f07dfe8b3877b3aa41a506082f','date':'2000-07-05T22:15:30Z','value': {'country':'United Kingdom'}},
+                    {'id':'9366afb036bf8b63c9f45379bbe29509','date':'2000-11-05T22:15:30Z','value': {'country':'United Kingdom'}}
+                ];
+                expect(_(items).aggregate([
+                    {
+                        $project: {
+                            date: { $parse: '$date'}, // convert string to date
+                            ref: '$' // keep ref to the obj
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: {$fn: function(item){ return item.date < currentDate ? 'lt' : 'gte'; }},
+                            set: { $addToSet : '$ref' }
+                        }
+                    },
+                    {
+                        $objectify: { _key: '$_id', _value: '$set' } // convert [{ _id: 'lt', set: [...] }, { _id: 'gte', set: [...] }] to { lt: [...], gte: [...] }
+                    }
+                ])).toEqual({
+                    lt: [
+                        {'id':'338b79f07dfe8b3877b3aa41a5bb8a58','date':'2000-10-05T13:21:30Z','value': {'country':'United States'}},
+                        {'id':'338b79f07dfe8b3877b3aa41a5bb983e','date':'2000-02-05T13:21:30Z','value': {'country':'Norway'}},
+                        {'id':'338b79f07dfe8b3877b3aa41a5fe29d7','date':'2000-05-05T13:21:30Z','value': {'country':'United States'}},
+                        {'id':'b6ed02fb38d6506d7371c419751e8a14','date':'2000-05-05T18:15:30Z','value': {'country':'Germany'}},
+                        {'id':'b6ed02fb38d6506d7371c419755f34ad','date':'2000-06-05T18:15:30Z','value': {'country':'United States'}},
+                        {'id':'b6ed02fb38d6506d7371c419755f3e17','date':'2000-04-05T22:15:30Z','value': {'country':'Germany'}},
+                        {'id':'338b79f07dfe8b3877b3aa41a506082f','date':'2000-07-05T22:15:30Z','value': {'country':'United Kingdom'}},
+                    ],
+                    gte: [
+                        {'id':'338b79f07dfe8b3877b3aa41a5ddfefe','date':'2000-12-05T13:21:30Z','value': {'country':'Hungary'}},
+                        {'id':'b6ed02fb38d6506d7371c419753e20b6','date':'2000-12-05T18:15:30Z','value': {'country':'Hungary'}},
+                        {'id':'9366afb036bf8b63c9f45379bbe29509','date':'2000-11-05T22:15:30Z','value': {'country':'United Kingdom'}}
+                    ]
+                });
+            });
+
+            it('should solve http://stackoverflow.com/questions/19349881/at-underscore-js-can-i-get-multiple-columns-with-pluck-method-after-input-where', function () {
+                var people = [
+                    {firstName : 'Thein', city : 'ny', qty : 5},
+                    {firstName : 'Michael', city : 'ny', qty : 3},
+                    {firstName : 'Bloom', city : 'nj', qty : 10}
+                ];
+
+                expect(_(people).aggregate([
+                    { $where:  { city : 'ny' }},
+                    { $project: { firstName: 1, qty: 1 }
+                }])).toEqual([ { firstName : 'Thein', qty : 5}, { firstName : 'Michael', qty : 3} ]);
+            });
         });
     });
 }());
