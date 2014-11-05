@@ -100,8 +100,8 @@ __Note:__
     - [$project](#project-v100): transforms collection items
     - [$limit](#limit-v100): Limits the number of items passed to the next stage
     - [$skip](#skip-v100): Skips over the specified number of items
-    - [$objectify](#objectify-v120): Reduces items to a single object using `_key/_value` pairs
-    - [$sort](#sort-v130): Returns items in sorted order.
+    - [$objectify](#objectify-v120): Reduce items to a single object using `_key/_value` pairs (use it only as the last stage of the pipeline)
+    - [$sort](#sort-v130): Returns items in sorted order
 
 #### $group (_v1.0.0+_)
 
@@ -152,6 +152,7 @@ _([
 
 
 #### $match (_v1.0.0+_)
+_alias:_ __$filter__, __$where__
 
 Filters the items that match the specified condition(s) to the next pipeline stage.
 
@@ -224,6 +225,7 @@ _(logs).aggregate([{
 
 
 #### $project (_v1.0.0+_)
+_alias:_ __$map__
 
 Passes the specified fields to the next stage in the pipeline. 
 The specified fields can be existing fields from the input object or newly computed fields.
@@ -331,13 +333,14 @@ _([
 
 
 #### $sort (_v1.3.0+_)
+_alias:_ __$order__, __$sortBy__, __$orderBy__
+
 Returns items in sorted order.
 
 Takes an object that specifies the field to sort by and the respective sort order. `<sort order>` can have one of the following values:
  - `1` to specify ascending order.
  - `-1` to specify descending order.
 
-Alias: __$order__, __$sortBy__, __$orderBy__
 
 Usage: 
 ```javascript
