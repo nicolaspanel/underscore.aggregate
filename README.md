@@ -100,7 +100,7 @@ __Note:__
     - [$project](#project-v100): transform collection items
     - [$limit](#limit-v100): Limits the number of items passed to the next stage
     - [$skip](#skip-v100): Skips over the specified number of items
-    - [$objectify](#objectify-v120): Reduce items to a single object using `_key/_value` pairs
+    - [$objectify](#objectify-v120): Reduce items to a single object using `_key/_value` pairs (use it only as the last stage of the pipeline)
 
 #### $group (_v1.0.0+_)
 
@@ -147,6 +147,7 @@ _([
 
 
 #### $match (_v1.0.0+_)
+_alias:_ $filter, $where
 
 Filters the items that match the specified condition(s) to the next pipeline stage.
 
@@ -215,6 +216,7 @@ _(logs).aggregate([{
 
 
 #### $project (_v1.0.0+_)
+_alias:_ $map
 
 Passes the specified fields to the next stage in the pipeline. 
 The specified fields can be existing fields from the input object or newly computed fields.
