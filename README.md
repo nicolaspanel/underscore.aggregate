@@ -556,6 +556,7 @@ _([{ array: _.range(10) }]).aggregate([
  $format      | 1.0.0+  | Returns the date as a string formated according to the specified format. Accepts two expressions as arguments: the first argument must resolve to a [moment](http://momentjs.com/)  object and the second (optional) must resolve to a string. See [moment's documentation](http://momentjs.com/docs/#/displaying/) for more information.
  $parse       | 1.0.0+  | Create a [moment date]() object from the specified expression. Accepts a single argument expression resolving a number or a string.
  $valueOf     | 1.1.0+  | Returns the number of milliseconds since the Unix Epoch. Accepts a single argument expression resolving a [moment](http://momentjs.com/) date object.
+ $diff        | 1.2.0+  | Returns the difference between two dates. Accepts four expression arguments. First and second arguments must resolve to a [moment](http://momentjs.com/) date object. Third argument must resolve a string (possible values are 'milliseconds', 'seconds', 'minutes', 'hours', 'days', 'weeks', 'months', 'years'. Default: 'milliseconds'). Fourth argument must resolve a boolean for floating point number (default : `false`).
 
 Example : 
 ```javascript
@@ -655,6 +656,7 @@ _([{ date: '1987-04-30 12:15:59.123' }]).aggregate([
      - `$format: [ <expr1>, <expr2> ]`
      - `$format: <expression>`
      - `$valueOf: <expression>`
+     - `$diff: [ <expr1>, <expr2> [, <expr3> [, <expr4> ]] ]`
    - General purpose operators:
      - `$fn: <function(item)>`
 

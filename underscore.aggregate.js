@@ -171,6 +171,12 @@
             else if (_.has(expr, '$valueOf')){
                 return computeExpression(expr['$valueOf'], obj).valueOf();
             }
+            else if (_.has(expr, '$diff')){
+                var diffArgs = _(expr['$diff']).map(function(arg){
+                    return computeExpression(arg, obj);
+                });
+                return -1 * diffArgs[0].diff.apply(diffArgs[0], _.rest(diffArgs, 1));
+            }
             // polymorphic
             else if (_.has(expr, '$format')){
 

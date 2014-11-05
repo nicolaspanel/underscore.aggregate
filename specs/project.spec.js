@@ -428,6 +428,33 @@
                     }
                 }])).toEqual([{ result : moment('1987-04-30 12:15:14.666').valueOf()}]);
             });
+
+            it('should handle $diff expressions', function () {
+                expect(_([{
+                    date1: '1987-04-30 12:15:14.666' ,
+                    date2: '2014-04-31 12:15:14.666'
+                }]).aggregate([
+                    {
+                        $project: {
+                            date1: { $parse: '$date1' },
+                            date2: { $parse: '$date2' }
+                        }
+                    },
+                    {
+                        $project:{
+                            nbDays: { $diff: ['$date1', '$date2', 'days'] },
+                            nbYears: { $diff: ['$date1', '$date2', 'years'] },
+                            nbSeconds: { $diff: ['$date1', '$date2', 'seconds']},
+                            nbMilliseconds: { $diff: ['$date1', '$date2']}
+                        }
+                    }
+                ])).toEqual([{
+                    nbDays : 9863,
+                    nbYears : 27,
+                    nbSeconds : 852163200,
+                    nbMilliseconds: 852163200000
+                }]);
+            });
         });
 
     });
