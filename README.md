@@ -294,7 +294,7 @@ Expressions can include :
  - [Date operators](#date)
 
 #### Field paths expressions
-Use `$<field>" to specify the field path.
+Use `$<field>` to specify the field path.
 
 Field pass expressions can be nested. Example: `$foo.bar`.
 
