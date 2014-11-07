@@ -4,38 +4,76 @@
 
     describe('readme main examples', function(){
 
-        var aggregation;
+        var logs;
         beforeEach(function(){
-            aggregation = _([
-                { level: 'debug', handled: true,  date: moment('2000-01-01 00:00') },
-                { level: 'info',  handled: false, date: moment('2000-01-01 01:00') },
-                { level: 'warn',  handled: false, date: moment('2000-01-01 02:00') },
-                { level: 'error', handled: true,  date: moment('2000-01-01 03:00') },
-                { level: 'info',  handled: false, date: moment('2000-01-01 04:00') }
-            ]).aggregate([
+            logs = [
+                { level: 'warn',  date: '1999-12-31 23:59' },
+                { level: 'debug', date: '2000-01-01 00:00' },
+                { level: 'info',  date: '2000-01-01 01:00' },
+                { level: 'warn',  date: '2000-01-01 02:00' },
+                { level: 'error', date: '2000-01-01 03:00' },
+                { level: 'error', date: '2000-01-01 03:30' },
+                { level: 'info',  date: '2000-01-01 04:00' }
+            ];
+        });
+
+        it('should work', function(){
+            var aggregation = _(logs).aggregate([
+                {
+                    $project: {
+                        level: 1, // <=> level : '$level'
+                        date: { $parse: '$date' }
+                    }
+                },
                 {
                     $match: {
                         level: { $in: ['warn', 'error'] },
                         date: {
                             $gte: moment('2000-01-01 00:00'),
                             $lt: moment('2000-01-02 00:00')
-                        },
-                        handled: false
+                        }
                     }
                 },
                 {
                     $group: {
                         _id: '$level',
-                        count: { $sum: 1 }
+                        count: { $sum: 1 },
+                        start: { $min: '$date' }
+                    }
+                },
+                {
+                    $project: {
+                        level: '$_id',
+                        count: 1,
+                        startedAt: { $format: ['$start', 'LT']}
                     }
                 }
             ]);
+            expect(aggregation.length).toBe(2);
         });
 
-        it('should return 1 group with a single warning', function(){
-            expect(aggregation.length).toBe(1);
-            expect(aggregation[0]._id).toBe('warn');
-            expect(aggregation[0].count).toBe(1);
+        it('should support chaining', function(){
+            var aggregation = _(logs).$project({
+                level: 1, // <=> level : '$level'
+                date: { $parse: '$date' }
+            }).$match({
+                level: { $in: ['warn', 'error'] },
+                date: {
+                    $gte: moment('2000-01-01 00:00'),
+                    $lt: moment('2000-01-02 00:00')
+                }
+            }).$group({
+                _id: '$level',
+                count: { $sum: 1 },
+                start: { $min: '$date' }
+            }).$project({
+                level: '$_id',
+                count: 1,
+                startedAt: { $format: ['$start', 'LT']}
+            }).value();
+
+            expect(aggregation.length).toBe(2);
+            console.info(JSON.stringify(aggregation, null, 4));
         });
 
     });

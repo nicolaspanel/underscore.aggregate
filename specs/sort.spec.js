@@ -130,5 +130,12 @@
             });
 
         });
+        it('should support chaining', function () {
+            var items = _.shuffle([
+                {foo: 0},
+                {foo: 1}
+            ]);
+            expect(_(items).$sort({ foo: 1 }).first()).toEqual({foo: 0});
+        });
     });
 })();

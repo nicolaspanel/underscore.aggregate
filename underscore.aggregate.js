@@ -43,7 +43,18 @@
                 }
             });
             return values;
-        }
+        },
+        $group: function(array, options){ return _($group(array, options)); },
+        $match: function(array, options){ return _($match(array, options)); },
+        $filter: function(array, options){ return _($match(array, options)); },
+        $where: function(array, options){ return _($match(array, options)); },
+        $objectify: function(array, options){ return _($objectify(array, options)); },
+        $project: function(array, options){ return _($project(array, options)); },
+        $map: function(array, options){ return _($project(array, options)); },
+        $sort: function(array, options){ return _($sort(array, options)); },
+        $sortBy: function(array, options){ return _($sort(array, options)); },
+        $order: function(array, options){ return _($sort(array, options)); },
+        $orderBy: function(array, options){ return _($sort(array, options)); }
     });
 
     var computeExpression = function(expr, obj){

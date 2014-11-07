@@ -134,6 +134,16 @@
 
         });
 
+        it('should support chaining', function(){
+            expect(_([
+                {foo: 'bar' },
+                {foo: 'bar' }
+            ]).$group({
+                _id: '$foo',
+                count: {$sum: 1}
+            }).first()).toEqual({ _id: 'bar', count: 2 });
+        });
+
     });
 
 }());

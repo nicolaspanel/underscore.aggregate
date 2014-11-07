@@ -455,6 +455,10 @@
                     nbMilliseconds: 852163200000
                 }]);
             });
+
+            it('should support chaining',  function(){
+                expect(_([{foo: { bar: 'hello' }}]).$project( '$foo.bar').first()).toEqual('hello');
+            });
         });
 
     });

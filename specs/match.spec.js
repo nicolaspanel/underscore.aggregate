@@ -299,6 +299,15 @@
                 }])).toEqual([ {foo: 'bar'} ]);
             });
         });
+
+
+        it('should support chaining', function(){
+            expect(_([
+                {foo: 'bar' },
+                {foo: 'bar2' }
+            ]).$match({ foo: 'bar'})
+                .first()).toEqual({foo: 'bar' });
+        });
     });
 
 }());

@@ -1,73 +1,51 @@
 # Underscore.aggregate [![Build Status](https://travis-ci.org/nicolaspanel/underscore.aggregate.png)](https://travis-ci.org/nicolaspanel/underscore.aggregate)
 
-The aggregation pipeline is a framework for data aggregation that make your code easier to read and understand. 
-
-Collection's items (objects) enter a multi-stage pipeline that transforms them and the collection itself into an aggregated results.
+Provide aggregation features that make your code easier to read and understand. 
 
 __Basic example:__
 ```js
 _([
-    { level: 'warn',  date: '1999-12-31 23:59', content: 'dates may be a problem...' },
-    { level: 'debug', date: '2000-01-01 00:00', content: 'everything seems to be fine...' },
-    { level: 'info',  date: '2000-01-01 01:00', content: 'current date is...' },
-    { level: 'warn',  date: '2000-01-01 02:00', content: 'possible memory leak...' },
-    { level: 'error', date: '2000-01-01 03:00', content: 'throw an error during date conversion...' },
-    { level: 'error', date: '2000-01-01 03:30', content: 'throw a new error during date conversion...' },
-    { level: 'info',  date: '2000-01-01 04:00', content: 'everything seems ok now...' }
-]).aggregate([
-    {  
-        $project: { // transform items for the next stage
-            level: 1, // <=> level : '$level'
-            date: { $parse: '$date' }, // convert string to date
-            content: 1 // persist content attribute
-        }
-    },
-    {
-        $match: { // filter items that match following conditions
-            level: { $in: ['warn', 'error'] },
-            date: {
-                $gte: moment('2000-01-01 00:00'),
-                $lt: moment('2000-01-02 00:00')
-            },
-            content: { $regex: /.*date.*/} // filter items whose content contains the word "date"
-        }
-    },
-    {
-        $group: { // group remaining items by level and compute aggregated infos
-            _id: '$level',
-            count: { $sum: 1 },
-            start: { $min: '$date' },
-            messages: { $addToSet: {
-                $format: [
-                    '{0}:: {1}',                     // string template
-                    { $format: ['$date', 'HH:mm'] }, // replacement for {0}
-                    '$content'                       // replacement for {1}
-                ]
-            } }
-        }
-    },
-    {
-        $project: { // cleanup groups infos
-            level: '$_id',
-            count: 1,
-            messages: 1,
-            startedAt: { $format: ['$start', 'LT']}
-        }
+    { level: 'warn',  date: '1999-12-31 23:59' },
+    { level: 'debug', date: '2000-01-01 00:00' },
+    { level: 'info',  date: '2000-01-01 01:00' },
+    { level: 'warn',  date: '2000-01-01 02:00' },
+    { level: 'error', date: '2000-01-01 03:00' },
+    { level: 'error', date: '2000-01-01 03:30' },
+    { level: 'info',  date: '2000-01-01 04:00' }
+]).$project({
+    level: 1, // <=> level : '$level'
+    date: { $parse: '$date' }
+}).$match({
+    level: { $in: ['warn', 'error'] },
+    date: {
+        $gte: moment('2000-01-01 00:00'),
+        $lt: moment('2000-01-02 00:00')
     }
-]);
+}).$group({
+    _id: '$level',
+    count: { $sum: 1 },
+    start: { $min: '$date' }
+}).$project({
+    level: '$_id',
+    count: 1,
+    startedAt: { $format: ['$start', 'LT']}
+}).first(10).value();
 // => [{
+//     level: "warn",
+//     count: 1,
+//     startedAt: "2:00 AM"
+// }, 
+// {
 //     level: "error",
 //     count: 2,
-//     messages: [
-//         "03:00:: throw an error during date conversion...",
-//         "03:30:: throw a new error during date conversion..."
-//     ],
 //     startedAt: "3:00 AM"
 // }]
 ```
-[jsFiddle](http://plnkr.co/edit/k6SUjZLB2doM9WcghDA8?p=preview)
+[plnkr](http://plnkr.co/edit/k6SUjZLB2doM9WcghDA8?p=preview)
 
-__Note:__ works on nested objects too.
+__Note:__ 
+ - works on nested objects too.
+ - `underscore.aggregate` functions return wrapped objects on which you can apply any of [underscorejs](http://underscorejs.org/) functions.
 
 ## Installation and usage
 1. Choose your preferred method of installation:
@@ -84,40 +62,35 @@ __Note:__ works on nested objects too.
 ## Reference
 _See [Quick Reference](#quick-reference) for a more compact overview._
 
-### Stages
-The pipeline is an array of stages (i.e. sequence) that aim to transform your collection in a very predictable way.
-
-Usage: 
+Syntax: 
 ```javascript
-_(collection).aggregate( [ { <stage1> }, { <stage2> }, ... ] );
+_(collection)
+   .<stage1>(<options1>)
+   .<stage2>(<options2>)
+   ...
+   .value();
 ```
-
-__Note:__
-- Collection items pass through the stages in sequence.
-- Possible stages are:
+Supported functions are:
     - [$group](#group-v100) : groups collection items
     - [$match](#match-v100) : filters the collection
     - [$project](#project-v100): transforms collection items
-    - [$limit](#limit-v100): Limits the number of items passed to the next stage
-    - [$skip](#skip-v100): Skips over the specified number of items
-    - [$objectify](#objectify-v120): Reduce items to a single object using `_key/_value` pairs (use it only as the last stage of the pipeline)
+    - [$objectify](#objectify-v120): Reduce items to a single object using `_key/_value` pairs
     - [$sort](#sort-v130): Returns items in sorted order
 
-#### $group (_v1.0.0+_)
+__Note:__
+
+- `underscore.aggregate` functions start with '$'.
+- `underscore.aggregate` functions return a wrapped object that can be used for further chaining.
+
+### $group (_v1.0.0+_)
 
 Usage: 
 ```javascript
-_(collection).aggregate([
-    ... ,
-    { 
-        $group: { 
-            _id: <expression>, 
-            <field1>: { <accumulator1> : <expression1> }, 
-            ... 
-        } 
-    },
-    ...
-]);
+_(collection).$group({ 
+    _id: <expression>, 
+    <field1>: { <accumulator1> : <expression1> }, 
+    ... 
+})...
 ```
 
 See below for all supported [accumulators](#accumulators).
@@ -131,18 +104,14 @@ _([
     { name: 'Bart',   gender: 'male' ,  age: 10 },
     { name: 'Homer',  gender: 'male' ,  age: 38 },
     { name: 'Marge',  gender: 'female', age: 40 }
-]).aggregate([
-    {
-        $group: {
-            _id: '$gender',
-            count: { $sum: 1 },
-            avgAge : { $avg: '$age' },
-            maxAge : { $max: '$age' },
-            minAge : { $min: '$age' },
-            names :  { $addToSet: '$name'}
-        }
-    }
-]);
+]).$group({
+    _id: '$gender', // group by gender
+    count: { $sum: 1 },
+    avgAge : { $avg: '$age' },
+    maxAge : { $max: '$age' },
+    minAge : { $min: '$age' },
+    names :  { $addToSet: '$name'}
+});
 
 // =>[
 //    { "_id": "female", "count": 3, "avgAge": 16.67, "maxAge": 40, "minAge": 2 , "names": [ "Maggie", "Lisa", "Marge" ] },
@@ -151,24 +120,18 @@ _([
 ```
 
 
-#### $match (_v1.0.0+_)
+### $match (_v1.0.0+_)
 _alias:_ __$filter__, __$where__
 
-Filters the items that match the specified condition(s) to the next pipeline stage.
+Filters the items that match the specified condition(s).
 
 Usage: 
 ```javascript
-_(collection).aggregate([
-    ... ,
-    { 
-        $match: { 
-            <query1>, 
-            <query2>, 
-            ... 
-        } 
-    },
-    ...
-];
+_(collection).$match({ 
+    <query1>, 
+    <query2>, 
+    ... 
+})...
 ```
 
 __Supported syntax for queries :__
@@ -205,45 +168,34 @@ $regex   | 1.0.0+  | ```{ field: {$regex: <RegExp> } }```                | Match
 __Example:__
 
 ```javascript
-var logs = [
-    { level: 'warn',  date: moment('1999-12-31 23:59'), content: 'dates may become a problem ...' },
-    { level: 'debug', date: moment('2000-01-01 00:00'), content: 'everything seems to be fine ...' },
-    { level: 'info',  date: moment('2000-01-01 01:00'), content: 'current date is ...' },
-    { level: 'warn',  date: moment('2000-01-01 02:00'), content: 'possible memory leak ...' },
-    { level: 'error', date: moment('2000-01-01 03:00'), content: 'throw an error during date conversion...' },
-    { level: 'info',  date: moment('2000-01-01 04:00'), content: 'everything seems ok' }
-];
-
-_(logs).aggregate([{
-    $match: {
-        level: { $in: ['warn', 'error'] },
-        date: { $gte: moment('2000-01-01 00:00') },
-        content: { $regex: /.*[dD]ate.*/}
-    }
-}]);  // => [ { level: 'error', date: {...}, content: 'throw an error during date conversion...' }]
+_([
+    { level: 'warn',  date: moment('1999-12-31 23:59') },
+    { level: 'debug', date: moment('2000-01-01 00:00') },
+    { level: 'info',  date: moment('2000-01-01 01:00') },
+    { level: 'warn',  date: moment('2000-01-01 02:00') },
+    { level: 'error', date: moment('2000-01-01 03:00') },
+    { level: 'info',  date: moment('2000-01-01 04:00') }
+]).$match({
+    level: { $in: ['warn', 'error'] },
+    date: { $gt: moment('2000-01-01 02:00') },
+}).first();  // => { level: 'error', date: {...} }
 ```
 
 
 #### $project (_v1.0.0+_)
 _alias:_ __$map__
 
-Passes the specified fields to the next stage in the pipeline. 
+Transform input item for the next stage. 
 The specified fields can be existing fields from the input object or newly computed fields.
 
 
 Usage: 
 ```javascript
-_(collection).aggregate([
-    ... ,
-    { 
-        $project: { 
-            <specification1>, 
-            <specification2>, 
-            ... 
-        } 
-    },
-    ...
-]);
+_(collection).$project({ 
+    <specification1>, 
+    <specification2>, 
+    ... 
+});
 ```
 
 
@@ -264,61 +216,31 @@ _([{
     gender: 'male' ,
     address : { n: 742, road: 'Evergreen Terrace', city: 'Springfield' },
     birthday: moment('1955-05-12')
-}]).aggregate([{
-    $project :  {
-        name : 1,
-        address: { $format: '{address.n} {address.road}, {address.city}' },
-        age : { $subtract: [moment().year(), { $year: '$birthday' } ] }
-    }
-}]);
-// => [{   
+}]).$project({
+    name : 1,
+    address: { $format: '{address.n} {address.road}, {address.city}' },
+    age : { $diff: [ moment(), '$birthday', 'years' ] }
+}).first();
+// => {   
 //    name: "Homer Simpson", 
 //    address: "742 Evergreen Terrace, Springfield", 
 //    age: 59 
-// }]
+// }
 ```
 
 __Note:__ See [expressions](#expressions) for more information about options. 
-
-#### $limit (_v1.0.0+_)
-Limits the number of items passed to the next stage in the pipeline.
-
-Usage: 
-```javascript
-_(collection).aggregate([
-    ... ,
-    {  $limit: <positive number>  },
-    ...
-]);
-```
-
-#### $skip (_v1.0.0+_)
-Skips over the specified number of items that pass into the stage and passes the remaining items to the next stage in the pipeline.
-
-Usage: 
-```javascript
-_(collection).aggregate([
-    ... ,
-    { $skip: <positive number> },
-    ...
-]);
-```
 
 #### $objectify (_v1.2.0+_)
 Reduce items to a single object using `_key/_value` pairs
 
 Usage: 
 ```javascript
-_(collection).aggregate([
-   ... ,
-   { $objectify: { _key: <expression>, _value: <expression> } }
-]);
+_(collection).$objectify({ _key: <expression>, _value: <expression> });
 ```
 
 __Notes:__
  - Default values are `{ _key: '$_id', _value: '$' }`.
  - `_key` expression must resolve to a unique value for each item.
- - $objectify stage must be at the end of the pipeline (following stages will be ignored).
 
 Example: 
 ```javascript
@@ -326,9 +248,7 @@ _([
     { type: 'a', count : 1 },
     { type: 'b', count: 2 },
     { type: 'c', count: 3 }
-]).aggregate([
-    { $objectify: { _key: '$type', _value: '$count'} }
-]); // => { a: 1, b: 2, c: 3 }
+]).$objectify({ _key: '$type', _value: '$count'}).value(); // => { a: 1, b: 2, c: 3 }
 ```
 
 
@@ -344,11 +264,7 @@ Takes an object that specifies the field to sort by and the respective sort orde
 
 Usage: 
 ```javascript
-_(collection).aggregate([
-    ... ,
-    { $sort: { <field>: <sort order> },
-    ...
-]);
+_(collection).$sort({ <field>: <sort order> });
 ```
 
 Example: 
@@ -357,7 +273,7 @@ _([
     { type: 'a', count : 3 },
     { type: 'b', count: 1 },
     { type: 'c', count: 2 }
-]).aggregate([ { $sort: { count: -1 } }]); 
+]).$sort({ count: -1 }).value(); 
 // => [
 //     { type: 'a', count : 3 },
 //     { type: 'c', count: 2 },
@@ -418,18 +334,14 @@ _([
     { name: 'Bart',   gender: 'male' ,  age: 10 },
     { name: 'Homer',  gender: 'male' ,  age: 38 },
     { name: 'Marge',  gender: 'female', age: 40 }
-]).aggregate([
-    {
-        $group: {
-            _id: '$gender',
-            count: { $sum: 1 },
-            avgAge : { $avg: '$age' },
-            maxAge : { $max: '$age' },
-            minAge : { $min: '$age' },
-            names :  { $addToSet: '$name'}
-        }
-    }
-]);
+]).$group{
+    _id: '$gender',
+    count: { $sum: 1 },
+    avgAge : { $avg: '$age' },
+    maxAge : { $max: '$age' },
+    minAge : { $min: '$age' },
+    names :  { $addToSet: '$name'}
+}).value();
 
 // =>[
 //    { "_id": "female", "count": 3, "avgAge": 16.67, "maxAge": 40, "minAge": 2 , "names": [ "Maggie", "Lisa", "Marge" ] },
@@ -449,17 +361,13 @@ _([
 
 Example : 
 ```javascript
-_([{ a: 1, b: 2 }]).aggregate([
-    {
-        $project : {
-            add         : { $add: ['$a', '$b', 2] },
-            divide      : { $divide: ['$a', '$b'] },
-            mod         : { $mod: ['$a', '$b'] },
-            multiply    : { $multiply: [10, '$a', '$b'] },
-            $subtract   : { $subtract: ['$a', '$b'] }
-        }
-    }
-]);
+_([{ a: 1, b: 2 }]).$project({
+    add         : { $add: ['$a', '$b', 2] },
+    divide      : { $divide: ['$a', '$b'] },
+    mod         : { $mod: ['$a', '$b'] },
+    multiply    : { $multiply: [10, '$a', '$b'] },
+    $subtract   : { $subtract: ['$a', '$b'] }
+}).value();
 // => [{ "add": 5, "divide": 0.5, "mod": 1, "multiply": 20, "$subtract": -1 }]
 ```
 
@@ -474,28 +382,23 @@ _([{ a: 1, b: 2 }]).aggregate([
 
 Example : 
 ```javascript
-_([{ hello: 'Hello', world: 'World' }]).aggregate([
-    {
-        $project : {
-            format1: { $format: ['{hello} {world}!'] },
-            format2: { $format: ['{0} {1}!', '$hello', '$world'] },
-        }
-    },
-    {
-        $project : {
-            hello: { $substr: [ '$format1', 0, 5 ] } ,
-            world: { $substr: [ '$format2', 6, 5 ] } ,
-            format1: { $toLower: '$format1' },
-            format2: { $toUpper: '$format2' }
-        }
-    }
-]); 
-// => [{   
+_([
+    { hello: 'Hello', world: 'World' }
+]).$project({
+    format1: { $format: ['{hello} {world}!'] },
+    format2: { $format: ['{0} {1}!', '$hello', '$world'] },
+}).$project({
+    hello: { $substr: [ '$format1', 0, 5 ] } ,
+    world: { $substr: [ '$format2', 6, 5 ] } ,
+    format1: { $toLower: '$format1' },
+    format2: { $toUpper: '$format2' }
+}).first(); 
+// => {   
 //      "hello": "Hello",
 //      "world": "World",
 //      "format1": "hello world!",
 //      "format2": "HELLO WORLD!"
-//  }]
+//  ]
 ```
 
 
@@ -509,32 +412,27 @@ _([{ hello: 'Hello', world: 'World' }]).aggregate([
 
 Example : 
 ```javascript
-_( [{a: true,  b: false }]).aggregate([
-    {
-        $project : {
-            a   : 1,
-            b   : 1,
-            and : { $and: ['$a', '$b'] },
-            or  : { $or: ['$a', '$b'] },
-            notA: { $not: '$a' },
-            notB: { $not: '$b' }
-        }
-    },
-    {
-        $project : {
-            and : { $format: ['{a} and {b} => {and}'] },
-            or  : { $format: ['{a} or {b} => {or}'] },
-            notA: { $format: ['not {a}  => {notA}'] },
-            notB: { $format: ['not {b} => {notB}'] }
-        }
-    }
-]);
-// =>  [{
+_( [
+    {a: true,  b: false }
+]).$project({
+    a   : 1,
+    b   : 1,
+    and : { $and: ['$a', '$b'] },
+    or  : { $or: ['$a', '$b'] },
+    notA: { $not: '$a' },
+    notB: { $not: '$b' }
+}).$project : {
+    and : { $format: ['{a} and {b} => {and}'] },
+    or  : { $format: ['{a} or {b} => {or}'] },
+    notA: { $format: ['not {a}  => {notA}'] },
+    notB: { $format: ['not {b} => {notB}'] }
+}).first();
+// =>  {
 //    and : "true and false => false",
 //    or  : "true or false => true",
 //    notA: "not true => false",
 //    notB: "not false => true"
-// }]
+// }
 ```
 
 ##### Comparison
@@ -552,26 +450,24 @@ __Note:__ all comparison operators accept two argument expressions: `<operator>:
 
 Example : 
 ```javascript
-_([{ a: 1, b: 2 }]).aggregate([
-    {
-        $project : {
-            eq: { $eq: ['$a', '$b'] },
-            ne: { $ne: ['$a', '$b'] },
-            gt: { $gt: ['$a', '$b'] },
-            gte: { $gte: ['$a', '$b'] },
-            lt: { $lt: ['$a', '$b'] },
-            lte: { $lte: ['$a', '$b'] }
-        }
-    }
-]); 
-// => [{
+_([
+    { a: 1, b: 2 }
+]).$project({
+    eq: { $eq: ['$a', '$b'] },
+    ne: { $ne: ['$a', '$b'] },
+    gt: { $gt: ['$a', '$b'] },
+    gte: { $gte: ['$a', '$b'] },
+    lt: { $lt: ['$a', '$b'] },
+    lte: { $lte: ['$a', '$b'] }
+}).first(); 
+// => {
 //    "eq": false,    
 //    "ne": true,      
 //    "gt": false,
 //    "gte": false,   
 //    "lt": true,   
 //    "lte": true  
-// }]
+// }
 ```
 
 ##### Array
@@ -582,13 +478,11 @@ _([{ a: 1, b: 2 }]).aggregate([
 
 Example : 
 ```javascript
-_([{ array: _.range(10) }]).aggregate([
-    {
-        $project : {
-            len: { $size: '$array' }
-        }
-    }
-]); // => [{ "len": 10 }]
+_([
+    { array: _.range(10) }
+]).$project({ 
+    len: { $size: '$array' }
+}).first(); // => { len: 10 }
 ```
 
 
@@ -613,29 +507,24 @@ _([{ array: _.range(10) }]).aggregate([
 
 Example : 
 ```javascript
-_([{ date: '1987-04-30 12:15:59.123' }]).aggregate([
-    {
-        $project : {
-            date: { $parse: '$date' }
-        }
-    },
-    {
-        $project : {
-            dayOfMonth: { $dayOfMonth: '$date' },
-            dayOfWeek: { $dayOfWeek: '$date' },
-            dayOfYear: { $dayOfYear: '$date' },
-            hour: { $hour: '$date' },
-            millisecond: { $millisecond: '$date' },
-            minute: { $minute: '$date' },
-            month: { $month: '$date' },
-            second: { $second: '$date' },
-            week: { $week: '$date' },
-            year: { $year: '$date' },
-            format: { $format: ['$date', 'LT' ] }
-        }
-    }
-]); 
-// => [{ 
+_([
+    { date: '1987-04-30 12:15:59.123' }
+]).$project({
+    date: { $parse: '$date' }
+}).$project : {
+    dayOfMonth: { $dayOfMonth: '$date' },
+    dayOfWeek: { $dayOfWeek: '$date' },
+    dayOfYear: { $dayOfYear: '$date' },
+    hour: { $hour: '$date' },
+    millisecond: { $millisecond: '$date' },
+    minute: { $minute: '$date' },
+    month: { $month: '$date' },
+    second: { $second: '$date' },
+    week: { $week: '$date' },
+    year: { $year: '$date' },
+    format: { $format: ['$date', 'LT' ] }
+}).first(); 
+// => { 
 //    "dayOfMonth": 30, 
 //    "dayOfWeek": 4, 
 //    "dayOfYear": 120, 
@@ -647,18 +536,16 @@ _([{ date: '1987-04-30 12:15:59.123' }]).aggregate([
 //    "week": 18, 
 //    "year": 1987, 
 //    "format": "12:15 PM" 
-// }];
+// };
 ```
 
 ### Quick reference
 
  - __Stages__ :
-   - $match : `_(collection).aggregate([ ..., { $match: {  <query1>, <query2>, ... } }, ...];`
-   - $project: `_(collection).aggregate([ ..., { $project: { <spec1>, <spec2>, ... }}, ...];` with `specification` formatted like  `<field>: <expression>`
-   - $group : `_(collection).aggregate([ ... , { $group: { _id: <expression>, <field1>: { <accumulator1> : <expression1> }, ... }}, ...];`.
-   - $skip : `_(collection).aggregate([ ..., { $skip: <positive number> }, ...];`
-   - $limit: `_(collection).aggregate([ ..., { $limit: <positive number> }, ...];`
-   - $objectify: `_(collection).aggregate([ ..., { objectify: { _key: <expression>, _value:<expression> } }];`
+   - $match : `_(collection).$match({  <query1>, <query2>, ... })`
+   - $project: `_(collection).$project({ <spec1>, <spec2>, ... );` with `specification` formatted like  `<field>: <expression>`
+   - $group : `_(collection).$group({ _id: <expression>, <field1>: { <accumulator1> : <expression1> }, ... );`.
+   - $objectify: `_(collection).$objectify({ _key: <expression>, _value:<expression> });`
  - __Expressions__ :
    - Field paths: `<field>: '$path.to.attribute'`
    - Literals:    `<field>: 'toto'` or `<field>: { $literal: 'toto'}`
