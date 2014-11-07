@@ -13,19 +13,19 @@ _([
     { level: 'error', date: '2000-01-01 03:30' },
     { level: 'info',  date: '2000-01-01 04:00' }
 ]).$project({ // transform items for the next stage
-    level: 1, // <=> level : '$level'
-    date: { $parse: '$date' }
+    level: '$level', //  persist level attribute for next stages
+    date: { $parse: '$date' } // parse string to momentjs date object
 }).$match({  // filter items that match following conditions
     level: { $in: ['warn', 'error'] },
     date: {
-        $gte: moment('2000-01-01 00:00'),
-        $lt: moment('2000-01-02 00:00')
+        $gte: moment('2000-01-01 00:00'), // greater than or equal to ...
+        $lt: moment('2000-01-02 00:00')   // less than ...
     }
-}).$group({ // group item by level attribute
+}).$group({ // group items by level attribute
     _id: '$level',
     count: { $sum: 1 },
     start: { $min: '$date' }
-}).$project({ // cleanup/format item for display
+}).$project({ // cleanup/format items for display
     level: '$_id',
     count: 1,
     startedAt: { $format: ['$start', 'LT']}
