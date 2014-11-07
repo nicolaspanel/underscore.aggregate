@@ -70,16 +70,17 @@ _(collection)
    .value();
 ```
 Supported functions are:
-    - [$group](#group-v100) : groups collection items
-    - [$match](#match-v100) : filters the collection
-    - [$project](#project-v100): transforms collection items
-    - [$objectify](#objectify-v120): Reduce items to a single object using `_key/_value` pairs
-    - [$sort](#sort-v130): Returns items in sorted order
+
+ - [$group](#group-v100) : groups collection items
+ - [$match](#match-v100) : filters the collection
+ - [$project](#project-v100): transforms collection items
+ - [$objectify](#objectify-v120): Reduce items to a single object using `_key/_value` pairs
+ - [$sort](#sort-v130): Returns items in sorted order
 
 __Note:__
 
-- `underscore.aggregate` functions start with '$'.
-- `underscore.aggregate` functions return a wrapped object that can be used for further chaining.
+ - `underscore.aggregate` functions start with '$'.
+ - `underscore.aggregate` functions return a wrapped object that can be used for further chaining.
 
 ### $group (_v1.0.0+_)
 
