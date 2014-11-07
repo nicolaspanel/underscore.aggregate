@@ -12,20 +12,20 @@ _([
     { level: 'error', date: '2000-01-01 03:00' },
     { level: 'error', date: '2000-01-01 03:30' },
     { level: 'info',  date: '2000-01-01 04:00' }
-]).$project({
+]).$project({ // transform items for the next stage
     level: 1, // <=> level : '$level'
     date: { $parse: '$date' }
-}).$match({
+}).$match({  // filter items that match following conditions
     level: { $in: ['warn', 'error'] },
     date: {
         $gte: moment('2000-01-01 00:00'),
         $lt: moment('2000-01-02 00:00')
     }
-}).$group({
+}).$group({ // group item by level attribute
     _id: '$level',
     count: { $sum: 1 },
     start: { $min: '$date' }
-}).$project({
+}).$project({ // cleanup/format item for display
     level: '$_id',
     count: 1,
     startedAt: { $format: ['$start', 'LT']}
@@ -41,7 +41,6 @@ _([
 //     startedAt: "3:00 AM"
 // }]
 ```
-[plnkr](http://plnkr.co/edit/k6SUjZLB2doM9WcghDA8?p=preview)
 
 __Note:__ 
  - works on nested objects too.
