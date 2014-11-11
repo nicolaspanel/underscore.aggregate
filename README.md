@@ -1,31 +1,33 @@
 # Underscore.aggregate [![Build Status](https://travis-ci.org/nicolaspanel/underscore.aggregate.png)](https://travis-ci.org/nicolaspanel/underscore.aggregate)
 
-Provide aggregation features that make your code easier to read and understand. 
+Aggregation features for [underscorejs](http://underscorejs.org/). 
 
 __Basic example:__
 ```js
 _([
     { level: 'warn',  date: '1999-12-31 23:59' },
     { level: 'debug', date: '2000-01-01 00:00' },
-    { level: 'info',  date: '2000-01-01 01:00' },
     { level: 'warn',  date: '2000-01-01 02:00' },
     { level: 'error', date: '2000-01-01 03:00' },
-    { level: 'error', date: '2000-01-01 03:30' },
-    { level: 'info',  date: '2000-01-01 04:00' }
-]).$project({ // transform items for the next stage
-    level: '$level', //  persist level attribute for next stages
+    { level: 'error', date: '2000-01-01 03:30' }
+])
+.$map({ // transform items for the next stage
+    level: '$level', 
     date: { $parse: '$date' } // parse string to momentjs date object
-}).$match({  // filter items that match following conditions
+})
+.$where({  // filter items that match following conditions
     level: { $in: ['warn', 'error'] },
     date: {
         $gte: moment('2000-01-01 00:00'), // greater than or equal to ...
         $lt: moment('2000-01-02 00:00')   // less than ...
     }
-}).$group({ // group items by level attribute
+})
+.$group({ // group items by level attribute
     _id: '$level',
     count: { $sum: 1 },
     start: { $min: '$date' }
-}).$project({ // cleanup/format items for display
+})
+.$map({ // cleanup/format items for display
     level: '$_id',
     count: 1,
     startedAt: { $format: ['$start', 'LT']}
@@ -72,15 +74,13 @@ _(collection)
 Supported functions are:
 
  - [$group](#group-v100) : groups collection items
- - [$match](#match-v100) : filters the collection
- - [$project](#project-v100): transforms collection items
+ - [$match/$where/$filter](#match-v100) : filters the collection
+ - [$project/$map](#project-v100): transforms collection items
  - [$objectify](#objectify-v120): Reduce items to a single object using `_key/_value` pairs
  - [$sort](#sort-v130): Returns items in sorted order
-
-__Note:__
-
- - `underscore.aggregate` functions start with '$'.
- - `underscore.aggregate` functions return a wrapped object that can be used for further chaining.
+ - Any [underscorejs](http://underscorejs.org/) functions
+ 
+__Note:__ `underscore.aggregate` functions start with '$' and return a wrapped object that can be used for further [chaining](http://underscorejs.org/#chaining).
 
 ### $group (_v1.0.0+_)
 
