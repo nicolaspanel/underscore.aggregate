@@ -30,7 +30,7 @@
             expect(_([
                 { foo: 'a', bar: 1 },
                 { foo: 'b', bar: 2 }
-            ]).$objectify({ _key: '$foo', _value: '$bar'}).value()).toEqual({ a: 1, b: 2 });
+            ]).$objectify({ _key: '$foo', _value: '$bar'})).toEqual({ a: 1, b: 2 });
         });
     });
 

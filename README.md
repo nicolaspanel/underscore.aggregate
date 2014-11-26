@@ -248,7 +248,7 @@ _([
     { type: 'a', count : 1 },
     { type: 'b', count: 2 },
     { type: 'c', count: 3 }
-]).$objectify({ _key: '$type', _value: '$count'}).value(); // => { a: 1, b: 2, c: 3 }
+]).$objectify({ _key: '$type', _value: '$count'}); // => { a: 1, b: 2, c: 3 }
 ```
 
 

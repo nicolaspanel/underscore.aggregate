@@ -48,7 +48,7 @@
         $match: function(array, options){ return _($match(array, options)); },
         $filter: function(array, options){ return _($match(array, options)); },
         $where: function(array, options){ return _($match(array, options)); },
-        $objectify: function(array, options){ return _($objectify(array, options)); },
+        $objectify: function(array, options){ return $objectify(array, options); },
         $project: function(array, options){ return _($project(array, options)); },
         $map: function(array, options){ return _($project(array, options)); },
         $sort: function(array, options){ return _($sort(array, options)); },
